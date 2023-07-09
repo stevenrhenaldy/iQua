@@ -42,4 +42,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function groups()
+    {
+        return $this->hasManyThrough(Group::class, GroupUser::class);
+    }
 }
