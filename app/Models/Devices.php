@@ -4,36 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-
-class Group extends Model
+class Devices extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected static function booted()
     {
         static::creating(function ($model) {
-            $model->uuid = (string) Str::uuid();
+            $model->serial_number = (string) Str::uuid();
         });
     }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'serial_number',
+        'group_id',
+        'type',
         'name',
-        'description',
-        'timezone',
+        'status',
+        'assigned_at',
+        'assigned_by_id'
     ];
 
-    public function users(){
-        return $this->hasManyThrough(User::class, Group::class);
+    public function group(){
+        return $this->belongsTo(Group::class);
     }
 
-    public function devices(){
-        return $this->hasMany(Device::class);
+    public function assigned_by(){
+        return $this->belongsTo(User::class);
     }
 }
