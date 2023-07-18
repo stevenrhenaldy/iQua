@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Group;
 use App\Models\GroupUser;
 use Carbon\Carbon;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -62,10 +63,10 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
-        // $devices = $group->devices;
+        $devices = $group->devices;
         return view("user.group.show", [
             "group" => $group,
-            // "devices" => $devices
+            "devices" => $devices
         ]);
     }
 
@@ -74,10 +75,10 @@ class GroupController extends Controller
      */
     public function edit(Group $group)
     {
-        // dd($group->groupUsers);
+        $timezones = DateTimeZone::listIdentifiers( DateTimeZone::ALL );
         return view("user.group.edit", [
             "group" => $group,
-            // "devices" => $devices
+            "timezones" => $timezones
         ]);
     }
 
@@ -104,6 +105,26 @@ class GroupController extends Controller
 
             dd($groupUser->id);
             return redirect()->route("group.edit", $group->id)->with("success", "Email has been sent successfully");
+
+        }else if($request->action == "edit"){
+
+            $request->validate([
+                "name" => ["required", "string", "max:30"],
+                "description" => ["nullable", "string", "max:255"],
+                "timezone" => ["nullable", "string", "max:255"],
+            ]);
+
+            if(!in_array($request->timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ))){
+                return redirect()->route("group.edit", $group->id)->with("success", "Error Timezone");
+            }
+
+            $group->update([
+                "name" => $request->name,
+                "description" => $request->description,
+                "timezone" => $request->timezone,
+            ]);
+
+            return redirect()->route("group.edit", $group->id)->with("success", __("Data has been updated"));
 
         }
     }

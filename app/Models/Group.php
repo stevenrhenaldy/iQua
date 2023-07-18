@@ -38,6 +38,6 @@ class Group extends Model
     }
 
     public function devices(){
-        return $this->hasMany(Device::class);
+        return $this->hasMany(Devices::class);
     }
 }

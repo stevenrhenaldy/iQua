@@ -11,16 +11,25 @@
                         <form action="{{ route('group.update', $group->id) }}" method="post">
                             @csrf
                             @method('PUT')
+                            <input type="text" name="action" value="edit" hidden>
                             <div class="row">
                                 <div class="mb-3">
-                                    <label for="inputTitleEn" class="form-label">Name</label>
+                                    <label for="GroupName" class="form-label">Name</label>
                                     <input type="text" class="form-control" id="GroupName" name="name"
                                         value="{{ $group->name }}">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="inputTitleEn" class="form-label">Description</label>
+                                    <label for="Description" class="form-label">Description</label>
                                     <input type="text" class="form-control" id="Description" name="description"
                                         value="{{ $group->description }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="inputTimezone" class="form-label">Timezone</label>
+                                    <select name="timezone" class="form-select" id="inputTimezone">
+                                        @foreach ($timezones as $timezone)
+                                        <option value="{{$timezone}}" {{ $timezone==$group->timezone? "selected" : "" }}>{{$timezone}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="">
                                     <a href="https://culture.oia.nsysu.edu.tw/manage/form"
@@ -29,21 +38,21 @@
                                 </div>
                             </div>
                         </form>
-                        <div class="row my-2">
+                        <div class="row my-3">
                             <div class="col-12">
                                 <ul class="list-group">
                                     <li class="list-group-item active">Members</li>
-                                    @foreach ($group->groupUsers as $user)
+                                    @foreach ($group->groupUsers as $grupUser)
                                         <a class="text-decoration-none" href="">
                                             <li class="list-group-item">
                                                 <div class="row">
                                                     <div class="col-9">
                                                         <b>
-                                                            {{ $user->name }}
+                                                            {{ $grupUser->name }}
                                                         </b>
                                                     </div>
                                                     <div class="col-3 text-end">
-                                                        {{ $user->role }}
+                                                        {{ $grupUser->role }}
                                                     </div>
                                                 </div>
                                             </li>
@@ -52,7 +61,7 @@
                                 </ul>
                                 <div class="my-2 d-grid">
                                     <button data-bs-toggle="modal" data-bs-target="#sendEmailModal" class="btn btn-success">
-                                        Add Member
+                                        {{__("Add Member")}}
                                     </button>
                                 </div>
                             </div>

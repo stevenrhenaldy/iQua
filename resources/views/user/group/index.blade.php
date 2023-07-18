@@ -23,7 +23,7 @@
                                                     Members: {{$group->users()->count()}}
                                                 </div>
                                                 <div class="col-6">
-                                                    Devices:
+                                                    Devices: {{$group->devices()->count()}}
                                                 </div>
                                             </div>
                                         </div>
