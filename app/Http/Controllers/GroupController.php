@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Models\GroupUser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GroupController extends Controller
 {
@@ -12,7 +15,11 @@ class GroupController extends Controller
      */
     public function index()
     {
-        //
+        $groups = Auth::user()->groups;
+        // $groups = Group::all();
+        return view("user.group.index", [
+            "groups" => $groups,
+        ]);
     }
 
     /**
@@ -20,7 +27,7 @@ class GroupController extends Controller
      */
     public function create()
     {
-        //
+        return view("user.group.create");
     }
 
     /**
@@ -28,7 +35,26 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            "name" => ["required", "string", "max:30"],
+            "description" => ["nullable", "string", "max:255"],
+            // "timezone" => "required|string|max:255",
+        ]);
+
+        $group = Group::create([
+            "name" => $request->name,
+            "description" => $request->description,
+            "timezone" => "Asia/Taipei",
+        ]);
+
+        GroupUser::create([
+            "user_id" => Auth::user()->id,
+            "group_id" => $group->id,
+            "role" => "owner",
+            "accepted_at" => Carbon::now(),
+        ]);
+
+        return redirect()->route("group.index");
     }
 
     /**
@@ -36,7 +62,11 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
-        //
+        // $devices = $group->devices;
+        return view("user.group.show", [
+            "group" => $group,
+            // "devices" => $devices
+        ]);
     }
 
     /**
@@ -44,7 +74,11 @@ class GroupController extends Controller
      */
     public function edit(Group $group)
     {
-        //
+        // dd($group->groupUsers);
+        return view("user.group.edit", [
+            "group" => $group,
+            // "devices" => $devices
+        ]);
     }
 
     /**
@@ -52,7 +86,26 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group)
     {
-        //
+        $request->validate([
+            "action" => ['required', 'string', 'in:edit,add-member'],
+        ]);
+
+        if($request->action == "add-member"){
+
+            $request->validate([
+                "email" => ["required", "email"]
+            ]);
+
+            $groupUser = GroupUser::create([
+                "group_id" => $group->id,
+                "role" => "member",
+                "active_until" => Carbon::now()->addDays(3)
+            ]);
+
+            dd($groupUser->id);
+            return redirect()->route("group.edit", $group->id)->with("success", "Email has been sent successfully");
+
+        }
     }
 
     /**

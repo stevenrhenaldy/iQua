@@ -30,7 +30,11 @@ class Group extends Model
     ];
 
     public function users(){
-        return $this->hasManyThrough(User::class, Group::class);
+        return $this->belongsToMany(User::class, GroupUser::class);
+    }
+
+    public function groupUsers(){
+        return $this->hasMany(GroupUser::class);
     }
 
     public function devices(){
