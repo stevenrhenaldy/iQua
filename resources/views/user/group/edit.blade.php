@@ -32,7 +32,7 @@
                                     </select>
                                 </div>
                                 <div class="">
-                                    <a href="https://culture.oia.nsysu.edu.tw/manage/form"
+                                    <a href="{{route("group.show", $group->id)}}"
                                         class="btn btn-secondary">Back</a>
                                     <button type="submit" class="btn btn-primary">Save</button>
                                 </div>
