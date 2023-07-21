@@ -42,17 +42,29 @@
                             <div class="col-12">
                                 <ul class="list-group">
                                     <li class="list-group-item active">Members</li>
-                                    @foreach ($group->groupUsers as $grupUser)
+                                    @foreach ($group->groupUsers as $groupUser)
                                         <a class="text-decoration-none" href="">
                                             <li class="list-group-item">
                                                 <div class="row">
                                                     <div class="col-9">
                                                         <b>
-                                                            {{ $grupUser->name }}
+                                                            {{ $groupUser->name }}
                                                         </b>
                                                     </div>
                                                     <div class="col-3 text-end">
-                                                        {{ $grupUser->role }}
+                                                        @if($groupUser->accepted_at)
+                                                        {{ $groupUser->role }}
+                                                        @else
+                                                        @if($groupUser->expires)
+                                                        <span class="text-danger">
+                                                            Expired
+                                                        </span>
+                                                        @else
+                                                        <span class="text-danger">
+                                                            {{$dif = today()->diffInDays($groupUser->active_until)}} day{{$dif>1?"s":""}} remaining
+                                                        </span>
+                                                        @endif
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </li>

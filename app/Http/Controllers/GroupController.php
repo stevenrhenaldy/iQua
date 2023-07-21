@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendInvitationMail;
 use App\Models\Group;
 use App\Models\GroupUser;
 use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
 
 class GroupController extends Controller
 {
@@ -97,13 +100,22 @@ class GroupController extends Controller
                 "email" => ["required", "email"]
             ]);
 
+            $expires_at = Carbon::now()->addDays(3)->hour(23)->minute(59)->second(59);
             $groupUser = GroupUser::create([
                 "group_id" => $group->id,
                 "role" => "member",
-                "active_until" => Carbon::now()->addDays(3)
+                "active_until" => $expires_at
             ]);
 
-            dd($groupUser->id);
+            $code = Crypt::encrypt($groupUser->id);
+            $invitation_link = route("invitation.verify", $code);
+            $mailData = [
+                "initiator" => Auth::user()->name,
+                "link" => $invitation_link
+            ];
+
+            Mail::to($request->email)->send(new SendInvitationMail($group, $groupUser, $mailData));
+
             return redirect()->route("group.edit", $group->id)->with("success", "Email has been sent successfully");
 
         }else if($request->action == "edit"){
@@ -135,5 +147,28 @@ class GroupController extends Controller
     public function destroy(Group $group)
     {
         //
+    }
+
+    public function verify_invite($code){
+        $id = Crypt::decrypt("$code");
+        $groupUser = GroupUser::where("id", $id)->first();
+        if(!$groupUser){
+            return "error";
+        }
+        if($groupUser->expires){
+            return "error";
+        }
+        $user_id = Auth::user()->id;
+        $group = $groupUser->group;
+        $check_other = GroupUser::where([["group_id", $group->id], ["user_id", $user_id]])->first();
+
+        if($check_other){
+            return "error";
+        }
+        $groupUser->user_id = $user_id;
+        $groupUser->accepted_at = Carbon::now();
+        $groupUser->save();
+        // $group->id;
+        return redirect()->route('group.show', $group->id);
     }
 }

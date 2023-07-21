@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use function PHPUnit\Framework\isNull;
 
 class GroupUser extends Model
 {
@@ -25,6 +28,16 @@ class GroupUser extends Model
         'accepted_at',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'active_until' => 'datetime',
+        'accepted_at' => 'datetime',
+    ];
+
     public function getNameAttribute()
     {
         // dd($this->name_alias, $this->user->name);
@@ -39,6 +52,13 @@ class GroupUser extends Model
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function getExpiresAttribute(){
+        if(!$this->active_until) return false;
+        if(!isNull($this->accepted_at)) return true;
+        $now = Carbon::now();
+        return $this->active_until->lte($now);
     }
 
 }

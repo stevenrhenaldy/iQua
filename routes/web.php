@@ -39,8 +39,11 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     return redirect()->route("home");
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
+
+
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::middleware(["auth"])->group(function(){
     Route::resource('group', GroupController::class);
+    Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 });
