@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\GroupMemberController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -16,6 +17,8 @@ use Illuminate\Http\Request;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+URL::forceScheme('https');
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -45,5 +48,6 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 
 Route::middleware(["auth"])->group(function(){
     Route::resource('group', GroupController::class);
+    Route::resource('group.member', GroupMemberController::class);
     Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 });

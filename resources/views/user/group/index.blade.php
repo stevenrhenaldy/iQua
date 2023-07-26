@@ -12,7 +12,7 @@
                                 <a href="{{route("group.create")}}" class="btn text-center btn-primary float-end">Create new group</a>
                             </div>
                             @foreach ($groups as $group)
-                            <a href="{{route("group.show", $group->id)}}" class="text-black text-decoration-none">
+                            <a href="{{route("group.show", $group->uuid)}}" class="text-black text-decoration-none">
 
                                 <div class="col-12 my-1">
                                     <div class="card">

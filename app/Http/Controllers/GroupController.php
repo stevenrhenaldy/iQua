@@ -116,7 +116,7 @@ class GroupController extends Controller
 
             Mail::to($request->email)->send(new SendInvitationMail($group, $groupUser, $mailData));
 
-            return redirect()->route("group.edit", $group->id)->with("success", "Email has been sent successfully");
+            return redirect()->route("group.edit", $group->uuid)->with("success", "Email has been sent successfully");
 
         }else if($request->action == "edit"){
 
@@ -127,7 +127,7 @@ class GroupController extends Controller
             ]);
 
             if(!in_array($request->timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ))){
-                return redirect()->route("group.edit", $group->id)->with("success", "Error Timezone");
+                return redirect()->route("group.edit", $group->uuid)->with("success", "Error Timezone");
             }
 
             $group->update([
@@ -136,7 +136,7 @@ class GroupController extends Controller
                 "timezone" => $request->timezone,
             ]);
 
-            return redirect()->route("group.edit", $group->id)->with("success", __("Data has been updated"));
+            return redirect()->route("group.edit", $group->uuid)->with("success", __("Data has been updated"));
 
         }
     }
@@ -169,6 +169,6 @@ class GroupController extends Controller
         $groupUser->accepted_at = Carbon::now();
         $groupUser->save();
         // $group->id;
-        return redirect()->route('group.show', $group->id);
+        return redirect()->route('group.show', $group->uuid);
     }
 }

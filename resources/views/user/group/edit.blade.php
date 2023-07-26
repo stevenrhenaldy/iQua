@@ -8,7 +8,7 @@
                     <div class="card-body">
                         <h2>Settings</h2>
 
-                        <form action="{{ route('group.update', $group->id) }}" method="post">
+                        <form action="{{ route('group.update', $group->uuid) }}" method="post">
                             @csrf
                             @method('PUT')
                             <input type="text" name="action" value="edit" hidden>
@@ -32,7 +32,7 @@
                                     </select>
                                 </div>
                                 <div class="">
-                                    <a href="{{route("group.show", $group->id)}}"
+                                    <a href="{{route("group.show", $group->uuid)}}"
                                         class="btn btn-secondary">Back</a>
                                     <button type="submit" class="btn btn-primary">Save</button>
                                 </div>
@@ -43,7 +43,7 @@
                                 <ul class="list-group">
                                     <li class="list-group-item active">Members</li>
                                     @foreach ($group->groupUsers as $groupUser)
-                                        <a class="text-decoration-none" href="">
+                                        <a class="text-decoration-none" href="{{route("group.member.show", ["group"=>$group->uuid, "member"=>$groupUser->id])}}">
                                             <li class="list-group-item">
                                                 <div class="row">
                                                     <div class="col-9">
@@ -90,7 +90,7 @@
     <!-- Modal -->
     <div class="modal fade" id="sendEmailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="post" action="{{ route('group.update', $group->id) }}">
+            <form method="post" action="{{ route('group.update', $group->uuid) }}">
                 @csrf
                 @method('PUT')
                 <input type="text" name="action" value="add-member" hidden>

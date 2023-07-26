@@ -40,4 +40,9 @@ class Group extends Model
     public function devices(){
         return $this->hasMany(Devices::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

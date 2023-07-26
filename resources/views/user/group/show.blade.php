@@ -10,7 +10,7 @@
                         <p>{{ $group->description }}</p>
                         <div class="row">
                             <div class="col-12 my-1">
-                                <a href="{{ route('group.edit', $group->id) }}"
+                                <a href="{{ route('group.edit', $group->uuid) }}"
                                     class="btn text-center btn-primary float-end">Settings</a>
                             </div>
                             <div class="col-12 my-1">
@@ -20,7 +20,7 @@
                                     </div>
                                     <div class="card-body">
                                         @foreach ($devices as $device)
-                                            <a href="{{ route('group.show', $device->id) }}"
+                                            <a href="{{ route('group.show', $device->uuid) }}"
                                                 class="text-black text-decoration-none">
 
                                                 <div class="col-12 my-1">

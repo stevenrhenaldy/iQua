@@ -41,7 +41,7 @@ class GroupUser extends Model
     public function getNameAttribute()
     {
         // dd($this->name_alias, $this->user->name);
-        return !$this->accepted_at?"Pending Member" : $this->name_alias ?? $this->user->name;
+        return !$this->accepted_at ? "Pending Member" : $this->name_alias ?? $this->user->name;
     }
 
     public function user()
@@ -54,11 +54,13 @@ class GroupUser extends Model
         return $this->belongsTo(Group::class);
     }
 
-    public function getExpiresAttribute(){
-        if(!$this->active_until) return false;
-        if(!isNull($this->accepted_at)) return true;
+    public function getExpiresAttribute()
+    {
+        if (!$this->active_until) return false;
+        if (!isNull($this->accepted_at)) return true;
         $now = Carbon::now();
         return $this->active_until->lte($now);
     }
+
 
 }
