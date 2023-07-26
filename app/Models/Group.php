@@ -30,7 +30,7 @@ class Group extends Model
     ];
 
     public function users(){
-        return $this->belongsToMany(User::class, GroupUser::class);
+        return $this->belongsToMany(User::class, GroupUser::class)->whereNull('group_users.deleted_at');
     }
 
     public function groupUsers(){

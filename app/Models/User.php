@@ -46,6 +46,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class, GroupUser::class);
+        return $this->belongsToMany(Group::class, GroupUser::class)->whereNull('group_users.deleted_at');
     }
 }
