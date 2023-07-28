@@ -20,23 +20,23 @@
                                     </div>
                                     <div class="card-body">
                                         @foreach ($devices as $device)
-                                            <a href="{{ route('group.show', $device->uuid) }}"
-                                                class="text-black text-decoration-none">
+                                            {{-- <a href="{{ route('device.show', $device->uuid) }}"
+                                                class="text-black text-decoration-none"> --}}
 
                                                 <div class="col-12 my-1">
                                                     <div class="card">
                                                         <div class="card-body">
-                                                            <h4>{{ $group->name }}</h4>
+                                                            <h4>{{ $device->name }}</h4>
                                                             <div class="row">
                                                                 <div class="col-6">
-                                                                    Status: {{ $group->users()->count() }}
+                                                                    Status: {{ $device->status }}
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                 </div>
-                                            </a>
+                                            {{-- </a> --}}
                                         @endforeach
                                     </div>
                                 </div>

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DeviceController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupMemberController;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +49,17 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::middleware(["auth"])->group(function(){
+    // Route::get("/admin", [AdminController::class, "index"])->name("admin.home");
+
     Route::resource('group', GroupController::class);
     Route::resource('group.member', GroupMemberController::class);
     Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
+});
+
+Route::middleware(["auth"])->prefix("admin")->as("admin.")->group(function(){
+    Route::get("/", [AdminController::class, "index"])->name("home");
+
+    Route::resource('device', DeviceController::class);
+    // Route::resource('group.member', GroupMemberController::class);
+    // Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 });

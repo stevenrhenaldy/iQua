@@ -17,6 +17,11 @@ class Devices extends Model
         });
     }
 
+    public function getRouteKeyName()
+    {
+        return 'serial_number';
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -31,6 +36,10 @@ class Devices extends Model
         'assigned_at',
         'assigned_by_id'
     ];
+
+    public function getNameAttribute(){
+        return $this->name?? $this->type;
+    }
 
     public function group(){
         return $this->belongsTo(Group::class);
