@@ -20,8 +20,8 @@
                                     </div>
                                     <div class="card-body">
                                         @foreach ($devices as $device)
-                                            {{-- <a href="{{ route('device.show', $device->uuid) }}"
-                                                class="text-black text-decoration-none"> --}}
+                                            <a href="{{ route('group.device.show', [$group->uuid, $device->serial_number]) }}"
+                                                class="text-black text-decoration-none">
 
                                                 <div class="col-12 my-1">
                                                     <div class="card">
@@ -36,7 +36,7 @@
                                                     </div>
 
                                                 </div>
-                                            {{-- </a> --}}
+                                            </a>
                                         @endforeach
                                     </div>
                                 </div>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\DeviceController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\GroupDeviceController;
 use App\Http\Controllers\GroupMemberController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -53,6 +54,8 @@ Route::middleware(["auth"])->group(function(){
 
     Route::resource('group', GroupController::class);
     Route::resource('group.member', GroupMemberController::class);
+    Route::resource('group.device', GroupDeviceController::class);
+
     Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 });
 
