@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId("group_id")->nullable();
             $table->string("type")->nullable();
             $table->string("event")->nullable();
-            $table->string("value")->nullable();
+            $table->integer("value")->nullable();
             $table->timestamps();
         });
     }

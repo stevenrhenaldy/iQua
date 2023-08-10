@@ -41,7 +41,7 @@
             $("#device_table").dataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.device.index') }}",
+                ajax: window.location.href,
                 columns: [
                     {data: 'serial_number', name: 'serial_number'},
                     {data: 'type', name: 'type'},

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeviceEvent;
 use App\Models\Devices;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class GroupDeviceController extends Controller
 {
@@ -35,10 +37,25 @@ class GroupDeviceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Group $group, Devices $device)
+    public function show(Group $group, Devices $device, Request $request)
     {
         $device = $group->devices()->findOrFail($device->serial_number);
-        dd($device);
+
+        if ($request->ajax()) {
+            // return "Hello World";
+            // $devices = Devices::query();
+            $logs = DeviceEvent::query();
+            $logs->where("device_id", $device->id);
+            // $data = User::select('*');
+            return DataTables::of($logs)
+                ->addIndexColumn()
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view("user.group.device.show", [
+            "group" => $group,
+            "device" => $device,
+        ]);
     }
 
     /**

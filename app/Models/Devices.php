@@ -45,6 +45,10 @@ class Devices extends Model
         return $this->belongsTo(Group::class);
     }
 
+    public function events(){
+        return $this->hasMany(DeviceEvent::class);
+    }
+
     public function assigned_by(){
         return $this->belongsTo(User::class);
     }
