@@ -15,7 +15,7 @@
                             <div class="card-body">
                                 <h5 class="my-0"><b>{{$device->name}}</b></h5>
                                 <small class="my-0 text-muted">{{$device->serial_number}}</small>
-                                <p class="my-0">{{__('Type: ')}}{{ $device->type }}</p>
+                                <p class="my-0">{{__('Type: ')}}{{ $device->type->name }}</p>
                                 <p class="my-0">{{__('Status: ')}}{{ $device->status }}</p>
                                 {{-- <p class="my-0">{{__('Battery: ')}}{{ $device->status }}</p> --}}
                             </div>

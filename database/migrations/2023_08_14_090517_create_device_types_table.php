@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('devices', function (Blueprint $table) {
+        Schema::create('device_types', function (Blueprint $table) {
             $table->id();
-            $table->string("serial_number")->nullable();
-            $table->foreignId("group_id")->nullable();
-            $table->foreignId("device_type_id")->nullable();
             $table->string("name")->nullable();
-            $table->string("status")->default("offline");
-            $table->timestamp("assigned_at")->nullable();
-            $table->foreignId("assigned_by_id")->nullable();
+            $table->json("meta")->default("[]");
             $table->timestamps();
         });
     }
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('devices');
+        Schema::dropIfExists('device_types');
     }
 };

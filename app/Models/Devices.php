@@ -30,15 +30,23 @@ class Devices extends Model
     protected $fillable = [
         'serial_number',
         'group_id',
-        'type',
+        'device_type_id',
         'name',
         'status',
         'assigned_at',
         'assigned_by_id'
     ];
 
+    public function type(){
+        return $this->belongsTo(DeviceType::class, 'device_type_id');
+    }
+
+    public function meta(){
+        return $this->hasMany(DeviceMeta::class);
+    }
+
     public function getNameAttribute(){
-        return $this->name?? $this->type;
+        return $this->name?? $this->type?->name;
     }
 
     public function group(){

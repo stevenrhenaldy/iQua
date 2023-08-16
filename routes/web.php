@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\DeviceController;
+use App\Http\Controllers\Admin\DeviceTypeController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupDeviceController;
 use App\Http\Controllers\GroupMemberController;
@@ -43,7 +44,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     $request->fulfill();
 
     return redirect()->route("home");
-})->middleware(['auth', 'signed'])->name('verification.verify');
+})->name('verification.verify');
 
 
 
@@ -63,6 +64,7 @@ Route::middleware(["auth"])->prefix("admin")->as("admin.")->group(function(){
     Route::get("/", [AdminController::class, "index"])->name("home");
 
     Route::resource('device', DeviceController::class);
+    Route::resource('device_type', DeviceTypeController::class);
     // Route::resource('group.member', GroupMemberController::class);
     // Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 });

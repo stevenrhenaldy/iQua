@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Devices;
 use App\Models\DeviceType;
 use Illuminate\Http\Request;
-use DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
-class DeviceController extends Controller
+class DeviceTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,15 +15,15 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $devices = Devices::query();
+            $deviceType = DeviceType::query();
             // $data = User::select('*');
-            return DataTables::of($devices)
+            return DataTables::of($deviceType)
                     ->addIndexColumn()
                     ->addColumn('is_assigned', function($row){
                         return $row->assigned_at ? "Yes" : "No";
                  })
                     ->addColumn('action', function($row){
-                            $route = route("admin.device.show", $row->serial_number);
+                            $route = route("admin.device_type.show", $row->id);
                             $btn = sprintf("<a href='%s' class='edit btn btn-primary btn-sm'>View</a>", $route);
                             // $btn = `<a href="{$route}" class="edit btn btn-primary btn-sm">View</a>`;
                             // dd($btn)
@@ -34,9 +33,7 @@ class DeviceController extends Controller
                     ->rawColumns(['action'])
                     ->make(true);
         }
-        return view("admin.devices.index", [
-            // "devices" => $devices,
-        ]);
+        return view("admin.device_type.index");
     }
 
     /**
@@ -44,10 +41,7 @@ class DeviceController extends Controller
      */
     public function create()
     {
-        $types = DeviceType::all();
-        return view("admin.devices.create",[
-            "types" => $types,
-        ]);
+        return view("admin.device_type.create");
     }
 
     /**
@@ -55,52 +49,51 @@ class DeviceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            "type" => ['required', "integer", "exists:device_types,id"]
+        $validated = $request->validate([
+            "type" => ['required', "string"]
         ]);
-        $device = Devices::create([
-            "device_type_id" => $request->type,
+        $deviceType = DeviceType::create([
+            "name" => $validated["type"],
         ]);
-        $metas = $device->type->meta;
-        foreach($metas as $meta){
-            $device->meta()->create([
-                "meta" => $meta,
-                "value" => null,
-            ]);
-        }
-        return redirect()->route("admin.device.show", $device->serial_number);
+        return redirect()->route("admin.device_type.edit", $deviceType->id)->with("success", __("Device Type Created Successfully"));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Devices $device)
+    public function show(DeviceType $deviceType)
     {
-        return view("admin.devices.show",[
-            "device" => $device,
-        ]);
+        return redirect()->route("admin.device_type.edit", $deviceType->id);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Devices $device)
+    public function edit(DeviceType $deviceType)
     {
-        //
+        return view("admin.device_type.edit",[
+            "device_type" => $deviceType,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Devices $devices)
+    public function update(Request $request, DeviceType $deviceType)
     {
-        //
+        $validated = $request->validate([
+            "name" => ['required', "string"],
+            "meta" => ["array"],
+            "meta.*" => ["required", "string"]
+        ]);
+        $deviceType->update($validated);
+        return redirect()->route("admin.device_type.edit", $deviceType->id)->with("success", __("Device type Has been updated"));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Devices $devices)
+    public function destroy(DeviceType $deviceType)
     {
         //
     }

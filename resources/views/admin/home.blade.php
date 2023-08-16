@@ -30,15 +30,24 @@
 
 
                         <div class="row">
-                            <a href="{{route("admin.home")}}" class="text-black text-decoration-none">
-                                <div class="row-6">
+                            <div class="col-6">
+                            <a href="{{route("admin.device.index")}}" class="text-black text-decoration-none">
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="my-1">Devices</h5>
                                         </div>
                                     </div>
-                                </div>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                            <a href="{{route("admin.device_type.index")}}" class="text-black text-decoration-none">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="my-1">Device Types</h5>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
 
                     </div>

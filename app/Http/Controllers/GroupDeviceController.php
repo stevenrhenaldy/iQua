@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DeviceEvent;
 use App\Models\Devices;
 use App\Models\Group;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
@@ -23,7 +24,9 @@ class GroupDeviceController extends Controller
      */
     public function create(Group $group)
     {
-        //
+        return view("user.group.device.create",[
+            "group" => $group,
+        ]);
     }
 
     /**
@@ -31,7 +34,17 @@ class GroupDeviceController extends Controller
      */
     public function store(Request $request, Group $group)
     {
-        //
+        $request->validate([
+            "serial_number" => ['required', "string", "exists:devices,serial_number"]
+        ]);
+
+        $device = Devices::where("serial_number", $request->serial_number)->firstOrFail();
+        $device->group_id = $group->id;
+        $device->assigned_at = Carbon::now();
+        $device->assigned_by_id = auth()->user()->id;
+        $device->save();
+
+        return redirect()->route("group.device.show", [$group->uuid, $device->serial_number])->with("success", __("Device Added to Group Successfully"));
     }
 
     /**
@@ -39,11 +52,10 @@ class GroupDeviceController extends Controller
      */
     public function show(Group $group, Devices $device, Request $request)
     {
-        $device = $group->devices()->findOrFail($device->serial_number);
-
+        if($device->group_id != $group->id){
+            abort(404);
+        }
         if ($request->ajax()) {
-            // return "Hello World";
-            // $devices = Devices::query();
             $logs = DeviceEvent::query();
             $logs->where("device_id", $device->id);
             // $data = User::select('*');
