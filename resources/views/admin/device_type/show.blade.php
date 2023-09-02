@@ -4,12 +4,12 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card bg-white">
                     <div class="card-body">
                         <h2>{{ $device->serial_number }}</h2>
                         <p class="my-0">{{ $device->type }}</p>
                         <p class="my-0">{{ $device->status }}</p>
-                        <div class="card my-1">
+                        <div class="card bg-white my-1">
                             <div class="card-header">
                                 Group Info
                             </div>

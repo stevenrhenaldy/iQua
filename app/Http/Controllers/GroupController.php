@@ -137,7 +137,6 @@ class GroupController extends Controller
             ]);
 
             return redirect()->route("group.edit", $group->uuid)->with("success", __("Data has been updated"));
-
         }
     }
 

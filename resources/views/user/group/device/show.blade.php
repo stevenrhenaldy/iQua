@@ -4,11 +4,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card bg-white">
                     <div class="card-body">
                         <h2 class="my-0">{{ $device->name }}</h2>
 
-                        <div class="card my-1">
+                        <div class="card bg-white my-1">
                             <div class="card-header">
                                 Device Info
                             </div>
@@ -20,7 +20,7 @@
                                 {{-- <p class="my-0">{{__('Battery: ')}}{{ $device->status }}</p> --}}
                             </div>
                         </div>
-                        <div class="card my-1">
+                        <div class="card bg-white my-1">
                             <div class="card-header">
                                 Device Events
                             </div>

@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card bg-white">
                     <div class="card-body">
                         @if (session('status'))
                             <div class="alert alert-success" role="alert">
@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-6">
                             <a href="{{route("admin.device.index")}}" class="text-black text-decoration-none">
-                                    <div class="card">
+                                    <div class="card bg-white">
                                         <div class="card-body">
                                             <h5 class="my-1">Devices</h5>
                                         </div>
@@ -41,7 +41,7 @@
                             </div>
                             <div class="col-6">
                             <a href="{{route("admin.device_type.index")}}" class="text-black text-decoration-none">
-                                    <div class="card">
+                                    <div class="card bg-white">
                                         <div class="card-body">
                                             <h5 class="my-1">Device Types</h5>
                                         </div>

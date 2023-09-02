@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card bg-white">
                     <div class="card-body">
                         <h2>Group Management</h2>
                         <div class="row">
@@ -15,7 +15,7 @@
                             <a href="{{route("group.show", $group->uuid)}}" class="text-black text-decoration-none">
 
                                 <div class="col-12 my-1">
-                                    <div class="card">
+                                    <div class="card bg-white">
                                         <div class="card-body">
                                             <h4>{{$group->name}}</h4>
                                             <div class="row">
