@@ -41,7 +41,7 @@ class GroupUser extends Model
     public function getNameAttribute()
     {
         // dd($this->name_alias, $this->user->name);
-        return !$this->accepted_at ? "Pending Member" : $this->name_alias ?? $this->user->name;
+        return $this->name_alias ? $this->name_alias : $this->user->name;
     }
 
     public function user()

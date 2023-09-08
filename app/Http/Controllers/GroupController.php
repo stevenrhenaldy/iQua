@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\SendInvitationMail;
 use App\Models\Group;
 use App\Models\GroupUser;
+use App\Models\User;
 use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Http\Request;
@@ -97,12 +98,20 @@ class GroupController extends Controller
         if($request->action == "add-member"){
 
             $request->validate([
-                "email" => ["required", "email"]
+                "username" => ["required", "string"]
             ]);
 
             $expires_at = Carbon::now()->addDays(3)->hour(23)->minute(59)->second(59);
+
+            $user = User::where("username", $request->username)->first();
+
+            if(!$user){
+                return redirect()->back()->withErrors("User not found");
+            }
+
             $groupUser = GroupUser::create([
                 "group_id" => $group->id,
+                "user_id" => $user->id,
                 "role" => "member",
                 "active_until" => $expires_at
             ]);
@@ -114,7 +123,7 @@ class GroupController extends Controller
                 "link" => $invitation_link
             ];
 
-            Mail::to($request->email)->send(new SendInvitationMail($group, $groupUser, $mailData));
+            Mail::to($user->email)->send(new SendInvitationMail($group, $groupUser, $mailData));
 
             return redirect()->route("group.edit", $group->uuid)->with("success", "Email has been sent successfully");
 

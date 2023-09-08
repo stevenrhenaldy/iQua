@@ -38,6 +38,12 @@
                                                 </div>
                                             </a>
                                         @endforeach
+
+                                        <div class="mt-1 d-grid">
+                                            <a href="{{route("group.device.create", $group->id)}}" class="btn btn-success">
+                                                {{__("Add Device")}}
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
 

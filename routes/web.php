@@ -9,7 +9,7 @@ use App\Http\Controllers\GroupMemberController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Crypt;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,10 +40,25 @@ Route::post('/email/verification-notification', function (Request $request) {
     return back()->with('message', 'Verification link sent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
+Route::get('/email/verify/{id}/{hash}', function (Request $request) {
 
-    return redirect()->route("home");
+    $id = Crypt::decrypt($request->id);
+
+    $user = App\Models\User::find($id);
+    if(!$user){
+        return abort(401);
+    }
+
+    if ($user->email_verification_key != $request->hash) {
+        return abort(401);
+    }
+
+    $user->email_verified_at = Carbon\Carbon::now();
+    $user->save();
+
+    return view('auth.verified');
+
+    // return redirect()->route("home");
 })->name('verification.verify');
 
 
@@ -56,8 +71,8 @@ Route::middleware(["auth"])->group(function(){
     Route::resource('group', GroupController::class);
     Route::resource('group.member', GroupMemberController::class);
     Route::resource('group.device', GroupDeviceController::class);
-
     Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
+
 });
 
 Route::middleware(["auth"])->prefix("admin")->as("admin.")->group(function(){

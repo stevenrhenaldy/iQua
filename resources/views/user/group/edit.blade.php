@@ -7,7 +7,7 @@
                 <div class="card bg-white">
                     <div class="card-body">
                         <h2>Settings</h2>
-
+                        <x-alert></x-alert>
                         <form action="{{ route('group.update', $group->uuid) }}" method="post">
                             @csrf
                             @method('PUT')
@@ -47,8 +47,12 @@
                                             <li class="list-group-item">
                                                 <div class="row">
                                                     <div class="col-9">
+                                                        @if ($groupUser->accepted_at)
+                                                        <span class="fw-bold">{{ $groupUser->name }}</span>
+                                                        @else
+                                                        <span class="text-muted">{{ $groupUser->name }}</span>
+                                                        @endif
                                                         <b>
-                                                            {{ $groupUser->name }}
                                                         </b>
                                                     </div>
                                                     <div class="col-3 text-end">
@@ -101,9 +105,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="inputEmail" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="inputEmail" name="email"
-                                value="" placeholder="someone@email.com">
+                            <label for="inputUsername" class="form-label">Username</label>
+                            <input type="username" class="form-control" id="inputUsername" name="username"
+                                value="" placeholder="">
                         </div>
                     </div>
                     <div class="modal-footer">
