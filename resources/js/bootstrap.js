@@ -2,8 +2,17 @@ import 'bootstrap';
 import $ from 'jquery';
 window.$ = $;
 
+// const socket = require("socket.io");
+
+// import io from
+// window.socket = require("socket.io");
+
+// import socketio from 'socket.io-client/dist/socket.io.js'
+// window.io = socketio;
+
 import DataTable from "datatables.net-bs5";
 DataTable(window, window.$);
+// window.DataTable = DataTable;
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
