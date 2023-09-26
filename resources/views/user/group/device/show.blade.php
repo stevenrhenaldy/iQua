@@ -13,11 +13,37 @@
                                 Device Info
                             </div>
                             <div class="card-body">
-                                <h5 class="my-0"><b>{{$device->name}}</b></h5>
-                                <small class="my-0 text-muted">{{$device->serial_number}}</small>
-                                <p class="my-0">{{__('Type: ')}}{{ $device->type->name }}</p>
-                                <p class="my-0">{{__('Status: ')}}{{ $device->status }}</p>
+                                <h5 class="my-0"><b>{{ $device->name }}</b></h5>
+                                <small class="my-0 text-muted">{{ $device->serial_number }}</small>
+                                <p class="my-0">{{ __('Type: ') }}{{ $device->type->name }}</p>
+                                {{-- <p class="my-0">{{ __('Status: ') }}{{ $device->status }}</p> --}}
                                 {{-- <p class="my-0">{{__('Battery: ')}}{{ $device->status }}</p> --}}
+                            </div>
+                        </div>
+                        <div class="card bg-white">
+                            <div class="card-body">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th class="col-3" scope="row">Status</th>
+                                            <td class="col-9" id="meta-status">{{$device->status}}</td>
+                                        </tr>
+                                        @foreach ($device->type->meta as $meta)
+                                        <tr>
+                                            <th scope="row" @if($meta == "run") rowspan="2"@endif>{{$meta}}</th>
+                                            <td id="meta-{{$meta}}">{{$device->meta()->where("meta", $meta)->first()->value}}</td>
+                                        </tr>
+                                        @if($meta == "run")
+                                        <tr>
+                                            <td>
+                                            <button type="button" class="btn btn-primary meta-button" name="{{$meta}}" value="1">{{$meta}}</button>
+                                            </td>
+                                        </tr>
+                                        @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+
                             </div>
                         </div>
                         <div class="card bg-white my-1">
@@ -46,29 +72,100 @@
                             </div>
                         </div>
 
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
     <script type="module">
+        $(function() {
+            const group_uuid = "{{$group->uuid}}";
+            const device_uuid = "{{$device->serial_number}}";
 
-        $(function () {
-            $("#device_event_table").dataTable({
+            var dt = $("#device_event_table").DataTable({
                 processing: true,
-                serverSide: true,
+                serverSide: false,
                 ajax: window.location.href,
-                columns: [
-                    {data: 'initiator', name: 'initiator'},
-                    {data: 'type', name: 'type'},
-                    {data: 'event', name: 'event'},
-                    {data: 'value', name: 'value'},
-                    {data: 'created_at', name: 'created_at'},
+                order: [4, 'desc'],
+                columns: [{
+                        data: 'initiator',
+                        name: 'initiator'
+                    },
+                    {
+                        data: 'type',
+                        name: 'type'
+                    },
+                    {
+                        data: 'event',
+                        name: 'event'
+                    },
+                    {
+                        data: 'value',
+                        name: 'value'
+                    },
+                    {
+                        data: 'time',
+                        name: 'time'
+                    },
                 ]
             });
 
+            const socket = io("https://realtime-iqua.atrest.xyz/");
+            socket.on('connect', function (msg) {
+                // console.log("test")
+
+                socket.emit("set_room_id", group_uuid);
+                console.log(`set_room_id = ${group_uuid}`)
+            });
+
+            socket.on('meta', (msg) => {
+                if(msg.device != device_uuid) return;
+                let ptr = `#meta-${msg.meta}`;
+                console.log(msg, ptr);
+
+                $(ptr).html(msg.value);
+            });
+
+            $('.meta-button').click(function() {
+                let meta = $(this).attr("name");
+                let value = $(this).attr("value");
+                console.log(meta, value);
+                socket.emit("action", {
+                    "type": "action",
+                    "device": device_uuid,
+                    "group": group_uuid,
+                    "event": meta,
+                    "value": value
+                });
+            });
+
+            // dt
+            // .rows()
+            // .invalidate()
+            // .draw();
+            console.log("invalidate")
+            socket.on("event", (msg) => {
+                let data = msg
+
+                console.log(data.device)
+                if(data.device == device_uuid){
+                    console.log("Data received for this device");
+                    let new_data = {
+                            "initiator": data.initiator,
+                            "type": data.type,
+                            "event": data.event,
+                            "value": data.value,
+                            "time": data.time
+                        };
+                    dt.row.add(new_data).draw();
+                }
+            });
         });
+
+
+
     </script>
 @endsection

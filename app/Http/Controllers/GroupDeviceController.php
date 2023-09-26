@@ -61,6 +61,9 @@ class GroupDeviceController extends Controller
             // $data = User::select('*');
             return DataTables::of($logs)
                 ->addIndexColumn()
+                ->addColumn('time', function ($row) use ($group) {
+                    return $row->created_at->setTimezone($group->timezone)->format("d/m/Y H:i:s");
+                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
