@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Mail\SendInvitationMail;
 use App\Models\Group;
 use App\Models\GroupUser;
@@ -22,17 +23,13 @@ class GroupController extends Controller
     {
         $groups = Auth::user()->groups;
         // $groups = Group::all();
-        return view("user.group.index", [
-            "groups" => $groups,
-        ]);
+        return $groups;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function timezones()
     {
-        return view("user.group.create");
+        $timezone_identifiers = DateTimeZone::listIdentifiers();
+        return $timezone_identifiers;
     }
 
     /**
@@ -40,16 +37,25 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
+        $timezone_identifiers = DateTimeZone::listIdentifiers();
+
         $request->validate([
             "name" => ["required", "string", "max:30"],
             "description" => ["nullable", "string", "max:255"],
-            // "timezone" => "required|string|max:255",
+            "timezone" => "required|string|max:255",
         ]);
+
+        if(!in_array($request->timezone, $timezone_identifiers)){
+            return response()->json([
+                "status" => "error",
+                "message" => "Invalid Timezone",
+            ], 400);
+        }
 
         $group = Group::create([
             "name" => $request->name,
             "description" => $request->description,
-            "timezone" => "Asia/Taipei",
+            "timezone" => $request->timezone,
         ]);
 
         GroupUser::create([
@@ -59,7 +65,11 @@ class GroupController extends Controller
             "accepted_at" => Carbon::now(),
         ]);
 
-        return redirect()->route("group.index");
+        return response()->json([
+            "status" => "success",
+            "message" => "Group Created Successfully",
+            "group" => $group,
+        ], 200);
     }
 
     /**
@@ -68,22 +78,11 @@ class GroupController extends Controller
     public function show(Group $group)
     {
         $devices = $group->devices;
-        return view("user.group.show", [
+        return response()->json([
+            "status" => "success",
             "group" => $group,
-            "devices" => $devices
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Group $group)
-    {
-        $timezones = DateTimeZone::listIdentifiers( DateTimeZone::ALL );
-        return view("user.group.edit", [
-            "group" => $group,
-            "timezones" => $timezones
-        ]);
+            "devices" => $devices,
+        ], 200);
     }
 
     /**
@@ -106,7 +105,10 @@ class GroupController extends Controller
             $user = User::where("username", $request->username)->first();
 
             if(!$user){
-                return redirect()->back()->withErrors("User not found");
+                return response()->json([
+                    "status" => "error",
+                    "message" => __("User not found! Please check the username"),
+                ], 400);
             }
 
             $groupUser = GroupUser::create([
@@ -125,7 +127,10 @@ class GroupController extends Controller
 
             Mail::to($user->email)->send(new SendInvitationMail($group, $groupUser, $mailData));
 
-            return redirect()->route("group.edit", $group->uuid)->with("success", "Email has been sent successfully");
+            return response()->json([
+                "status" => "success",
+                "message" => "Invitation Mail has been sent",
+            ], 200);
 
         }else if($request->action == "edit"){
 
@@ -136,7 +141,10 @@ class GroupController extends Controller
             ]);
 
             if(!in_array($request->timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ))){
-                return redirect()->route("group.edit", $group->uuid)->with("success", "Error Timezone");
+                return response()->json([
+                    "status" => "error",
+                    "message" => __("Invalid Timezone"),
+                ], 400);
             }
 
             $group->update([
@@ -145,7 +153,11 @@ class GroupController extends Controller
                 "timezone" => $request->timezone,
             ]);
 
-            return redirect()->route("group.edit", $group->uuid)->with("success", __("Data has been updated"));
+            return response()->json([
+                "status" => "success",
+                "message" => __("Data has been updated"),
+                "group" => $group,
+            ], 200);
         }
     }
 
@@ -157,26 +169,4 @@ class GroupController extends Controller
         //
     }
 
-    public function verify_invite($code){
-        $id = Crypt::decrypt($code);
-        $groupUser = GroupUser::where("id", $id)->first();
-        if(!$groupUser){
-            return "error";
-        }
-        if($groupUser->expires){
-            return "error";
-        }
-        $user_id = Auth::user()->id;
-        $group = $groupUser->group;
-        $check_other = GroupUser::where([["group_id", $group->id], ["user_id", $user_id]])->first();
-
-        if($check_other){
-            return "error";
-        }
-        $groupUser->user_id = $user_id;
-        $groupUser->accepted_at = Carbon::now();
-        $groupUser->save();
-        // $group->id;
-        return redirect()->route('group.show', $group->uuid);
-    }
 }
