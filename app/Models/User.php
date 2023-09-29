@@ -40,6 +40,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verification_key',
     ];
 
     /**
@@ -51,6 +52,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // Laravel Passport Authentication with Username or Email
+    public function findForPassport($username) {
+        return $this->where('username', $username)->orWhere('email', $username)->first();
+    }
 
     public function groups()
     {

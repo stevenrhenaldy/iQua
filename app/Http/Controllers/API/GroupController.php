@@ -162,6 +162,17 @@ class GroupController extends Controller
     }
 
     /**
+     * Get users of the group.
+     */
+    public function group_user(Request $request, Group $group){
+        $users = $group->users;
+        return response()->json([
+            "status" => "success",
+            "users" => $users,
+        ], 200);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Group $group)

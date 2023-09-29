@@ -14,9 +14,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::group(['middleware' => ['auth:api']], function(){
+    Route::get('group/timezone', [GroupController::class, 'timezones']);
+    Route::get('group/{group}/user', [GroupController::class, 'group_user']);
+    Route::apiResource('group', GroupController::class);
+});
 
-Route::get('/group/timezones', [GroupController::class, 'timezones'])->name('api.timezones');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
