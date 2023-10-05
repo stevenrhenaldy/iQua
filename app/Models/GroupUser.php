@@ -57,9 +57,11 @@ class GroupUser extends Model
     public function getExpiresAttribute()
     {
         if (!$this->active_until) return false;
-        if (!isNull($this->accepted_at)) return true;
+        // if (!isNull($this->accepted_at)) return true;
         $now = Carbon::now();
-        return $this->active_until->lte($now);
+        $is_expired = $this->active_until->lte($now);
+        // dd($this->active_until->lte($now));
+        return $is_expired;
     }
 
 

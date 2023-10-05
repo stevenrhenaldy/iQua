@@ -30,6 +30,10 @@ class Group extends Model
     ];
 
     public function users(){
+        return $this->belongsToMany(User::class, GroupUser::class)->whereNull('group_users.deleted_at')->whereNotNull('group_users.accepted_at');
+    }
+
+    public function usersAll(){
         return $this->belongsToMany(User::class, GroupUser::class)->whereNull('group_users.deleted_at');
     }
 
