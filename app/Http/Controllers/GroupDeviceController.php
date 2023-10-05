@@ -7,6 +7,7 @@ use App\Models\Devices;
 use App\Models\Group;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 class GroupDeviceController extends Controller
@@ -52,6 +53,11 @@ class GroupDeviceController extends Controller
      */
     public function show(Group $group, Devices $device, Request $request)
     {
+        $user = Auth::user();
+        $user_is_assigned = $group->users()->where(['user_id' => $user->id])->first();
+        if(!$user_is_assigned){
+            abort(401);
+        }
         if($device->group_id != $group->id){
             abort(404);
         }
