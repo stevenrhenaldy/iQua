@@ -73,7 +73,7 @@ class GroupMemberController extends Controller
 
 
         $member->save();
-        return redirect()->back()->with("success", "Member has been updated!");
+        return redirect()->back()->with("success", __("Member has been updated!"));
     }
 
     /**
