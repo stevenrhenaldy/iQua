@@ -20,8 +20,7 @@ class GroupController extends Controller
      */
     public function index()
     {
-        $groups = Auth::user()->groups;
-        // $groups = Group::all();
+        $groups = Auth::user()->groups()->get();
         return view("user.group.index", [
             "groups" => $groups,
         ]);
@@ -67,6 +66,12 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
+        $user = Auth::user();
+        $user_is_assigned = $group->users()->where(['user_id' => $user->id])->first();
+        if(!$user_is_assigned){
+            abort(401);
+        }
+
         $devices = $group->devices;
         return view("user.group.show", [
             "group" => $group,
@@ -79,6 +84,12 @@ class GroupController extends Controller
      */
     public function edit(Group $group)
     {
+        $user = Auth::user();
+        $user_is_assigned = $group->users()->where(['user_id' => $user->id])->first();
+        if(!$user_is_assigned){
+            abort(401);
+        }
+
         $timezones = DateTimeZone::listIdentifiers( DateTimeZone::ALL );
         return view("user.group.edit", [
             "group" => $group,
@@ -91,6 +102,12 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group)
     {
+        $user = Auth::user();
+        $user_is_assigned = $group->users()->where(['user_id' => $user->id])->first();
+        if(!$user_is_assigned){
+            abort(401);
+        }
+
         $request->validate([
             "action" => ['required', 'string', 'in:edit,add-member'],
         ]);
@@ -161,22 +178,32 @@ class GroupController extends Controller
         $id = Crypt::decrypt($code);
         $groupUser = GroupUser::where("id", $id)->first();
         if(!$groupUser){
-            return "error";
+            return "Invitation may have been deleted!";
         }
-        if($groupUser->expires){
-            return "error";
-        }
-        $user_id = Auth::user()->id;
-        $group = $groupUser->group;
-        $check_other = GroupUser::where([["group_id", $group->id], ["user_id", $user_id]])->first();
 
-        if($check_other){
-            return "error";
+        // dd($groupUser);
+        if($groupUser->expires){
+            return "Invitation Expired!";
         }
-        $groupUser->user_id = $user_id;
+
+        $group = $groupUser->group;
+        $user = $groupUser ->user;
+
+        if($groupUser->accepted_at){
+            return view('auth.accepted', [
+                "already_accepted" => true,
+                "group" => $group,
+                "user" => $user
+            ]);
+        }
+
         $groupUser->accepted_at = Carbon::now();
         $groupUser->save();
-        // $group->id;
-        return redirect()->route('group.show', $group->uuid);
+
+        return view('auth.accepted', [
+            "already_accepted" => false,
+            "group" => $group,
+            "user" => $user
+        ]);
     }
 }
