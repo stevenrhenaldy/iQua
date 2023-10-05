@@ -58,9 +58,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->where('username', $username)->orWhere('email', $username)->first();
     }
 
-    public function groups()
+    public function groupsAll()
     {
         return $this->belongsToMany(Group::class, GroupUser::class)->whereNull('group_users.deleted_at');
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, GroupUser::class)->whereNull('group_users.deleted_at')->whereNotNull('group_users.accepted_at');
     }
 
     /**
