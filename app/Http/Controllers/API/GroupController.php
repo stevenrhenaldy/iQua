@@ -91,84 +91,28 @@ class GroupController extends Controller
     public function update(Request $request, Group $group)
     {
         $request->validate([
-            "action" => ['required', 'string', 'in:edit,add-member'],
+            "name" => ["required", "string", "max:30"],
+            "description" => ["nullable", "string", "max:255"],
+            "timezone" => ["nullable", "string", "max:255"],
         ]);
 
-        if($request->action == "add-member"){
-
-            $request->validate([
-                "username" => ["required", "string"]
-            ]);
-
-            $expires_at = Carbon::now()->addDays(3)->hour(23)->minute(59)->second(59);
-
-            $user = User::where("username", $request->username)->first();
-
-            if(!$user){
-                return response()->json([
-                    "status" => "error",
-                    "message" => __("User not found! Please check the username"),
-                ], 400);
-            }
-
-            $groupUser = GroupUser::create([
-                "group_id" => $group->id,
-                "user_id" => $user->id,
-                "role" => "member",
-                "active_until" => $expires_at
-            ]);
-
-            $code = Crypt::encrypt($groupUser->id);
-            $invitation_link = route("invitation.verify", $code);
-            $mailData = [
-                "initiator" => Auth::user()->name,
-                "link" => $invitation_link
-            ];
-
-            Mail::to($user->email)->send(new SendInvitationMail($group, $groupUser, $mailData));
-
+        if(!in_array($request->timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ))){
             return response()->json([
-                "status" => "success",
-                "message" => "Invitation Mail has been sent",
-            ], 200);
-
-        }else if($request->action == "edit"){
-
-            $request->validate([
-                "name" => ["required", "string", "max:30"],
-                "description" => ["nullable", "string", "max:255"],
-                "timezone" => ["nullable", "string", "max:255"],
-            ]);
-
-            if(!in_array($request->timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ))){
-                return response()->json([
-                    "status" => "error",
-                    "message" => __("Invalid Timezone"),
-                ], 400);
-            }
-
-            $group->update([
-                "name" => $request->name,
-                "description" => $request->description,
-                "timezone" => $request->timezone,
-            ]);
-
-            return response()->json([
-                "status" => "success",
-                "message" => __("Data has been updated"),
-                "group" => $group,
-            ], 200);
+                "status" => "error",
+                "message" => __("Invalid Timezone"),
+            ], 400);
         }
-    }
 
-    /**
-     * Get users of the group.
-     */
-    public function group_user(Request $request, Group $group){
-        $users = $group->users;
+        $group->update([
+            "name" => $request->name,
+            "description" => $request->description,
+            "timezone" => $request->timezone,
+        ]);
+
         return response()->json([
             "status" => "success",
-            "users" => $users,
+            "message" => __("Data has been updated"),
+            "group" => $group,
         ], 200);
     }
 
