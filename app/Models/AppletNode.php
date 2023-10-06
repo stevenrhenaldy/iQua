@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DeviceType extends Model
+class AppletNode extends Model
 {
     use HasFactory;
 
@@ -15,7 +15,11 @@ class DeviceType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'applet_id',
+        'group_id',
+        'device_id',
+        'type',
+        'entity_id',
+        'value',
     ];
-
 }
