@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\GroupDeviceController;
 use App\Http\Controllers\API\GroupMemberController;
+use App\Http\Controllers\API\UserRegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post('register', [UserRegisterController::class, 'store']);
+
 Route::group(['middleware' => ['auth:api']], function(){
     Route::get('group/timezone', [GroupController::class, 'timezones']);
     Route::apiResource('group', GroupController::class);
