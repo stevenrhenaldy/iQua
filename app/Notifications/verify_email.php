@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
-class verify_email extends Notification
+class verify_email extends Notification implements ShouldQueue
 {
     use Queueable;
 
