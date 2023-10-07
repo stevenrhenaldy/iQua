@@ -18,4 +18,9 @@ class DeviceType extends Model
         'name',
     ];
 
+    public function entities()
+    {
+        return $this->hasMany(Entity::class);
+    }
+
 }

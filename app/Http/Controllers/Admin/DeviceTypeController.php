@@ -16,18 +16,11 @@ class DeviceTypeController extends Controller
     {
         if ($request->ajax()) {
             $deviceType = DeviceType::query();
-            // $data = User::select('*');
             return DataTables::of($deviceType)
                     ->addIndexColumn()
-                    ->addColumn('is_assigned', function($row){
-                        return $row->assigned_at ? "Yes" : "No";
-                 })
                     ->addColumn('action', function($row){
                             $route = route("admin.device_type.show", $row->id);
                             $btn = sprintf("<a href='%s' class='edit btn btn-primary btn-sm'>View</a>", $route);
-                            // $btn = `<a href="{$route}" class="edit btn btn-primary btn-sm">View</a>`;
-                            // dd($btn)
-
                             return $btn;
                     })
                     ->rawColumns(['action'])
@@ -83,10 +76,34 @@ class DeviceTypeController extends Controller
     {
         $validated = $request->validate([
             "name" => ['required', "string"],
-            "meta" => ["array"],
-            "meta.*" => ["required", "string"]
+            "entity" => ["array"],
+            "entity.*.type" => ["required", "string"],
+            "entity.*.name" => ["required", "string"],
+            "entity.*.data_type" => ["required", "string"],
+            "entity.*.default_value" => ["nullable", "string"],
+            "entity.*.options" => ["nullable", "string"]
         ]);
-        $deviceType->update($validated);
+
+
+        $deviceType->update([
+            "name" => $validated["name"],
+        ]);
+
+        foreach($validated['entity'] as $key => $entity){
+
+            $en = $deviceType->entities()->firstOrNew([
+                "name" => $entity["name"],
+            ],
+            [
+                "type" => $entity["type"],
+                "default_value" => $entity["default_value"],
+                "data_type" => $entity["data_type"],
+                "options" => $entity["options"],
+            ]);
+
+            $en->save();
+        }
+
         return redirect()->route("admin.device_type.edit", $deviceType->id)->with("success", __("Device type Has been updated"));
     }
 

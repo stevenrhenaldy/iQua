@@ -22,4 +22,15 @@ class Entity extends Model
         'default_value',
         'options'
     ];
+
+    public static $DataType = [
+        "string",
+        "integer",
+        "float",
+        "time",
+        "boolean",
+        "array",
+        "button",
+        "switch"
+    ];
 }

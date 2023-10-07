@@ -16,6 +16,7 @@ class DeviceMeta extends Model
      */
     protected $fillable = [
         'devices_id',
+        'entity_id',
         'meta',
         'value',
     ];
