@@ -61,11 +61,12 @@ class DeviceController extends Controller
         $device = Devices::create([
             "device_type_id" => $request->type,
         ]);
-        $metas = $device->type->meta;
-        foreach($metas as $meta){
+        // $metas = $device->type->meta;
+        $entities = $device->type->entities;
+        foreach($entities as $entity){
             $device->meta()->create([
-                "meta" => $meta,
-                "value" => null,
+                "entity_id" => $entity->id,
+                "value" => $entity->default_value,
             ]);
         }
         return redirect()->route("admin.device.show", $device->serial_number);

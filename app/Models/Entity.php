@@ -33,4 +33,8 @@ class Entity extends Model
         "button",
         "switch"
     ];
+
+    protected $casts = [
+        "options" => "array"
+    ];
 }

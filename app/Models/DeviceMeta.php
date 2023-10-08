@@ -17,7 +17,15 @@ class DeviceMeta extends Model
     protected $fillable = [
         'devices_id',
         'entity_id',
-        'meta',
         'value',
     ];
+
+    public function device()
+    {
+        return $this->belongsTo(Device::class);
+    }
+    public function entity()
+    {
+        return $this->belongsTo(Entity::class);
+    }
 }

@@ -75,7 +75,7 @@
                                             </div>
                                             <div class="col-3">
                                                 <input type="text" class="form-control mb-2" name="entity[{{$key}}][options]"
-                                                    placeholder="Options (JSON ARRAY)" value="{{ $entity->options}}">
+                                                    placeholder="Options (JSON ARRAY)" value="{{ json_encode($entity->options) }}">
                                             </div>
                                         </div>
                                         @endforeach

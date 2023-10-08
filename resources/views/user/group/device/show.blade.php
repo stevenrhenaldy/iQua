@@ -28,16 +28,24 @@
                                             <th class="col-3" scope="row">Status</th>
                                             <td class="col-9" id="meta-status">{{$device->status}}</td>
                                         </tr>
-                                        @foreach ($device->type->meta as $meta)
+                                        @foreach ($device->meta as $meta)
+                                        @php
+                                        $entity = $meta->entity;
+                                        @endphp
+                                        @if ($entity->type == "input")
                                         <tr>
-                                            <th scope="row" @if($meta == "run") rowspan="2"@endif>{{$meta}}</th>
-                                            <td id="meta-{{$meta}}">{{$device->meta()->where("meta", $meta)->first()->value}}</td>
-                                        </tr>
-                                        @if($meta == "run")
-                                        <tr>
+                                            <th scope="row">{{$entity->name}}</th>
                                             <td>
-                                            <button type="button" class="btn btn-primary meta-button" name="{{$meta}}" value="1">{{$meta}}</button>
+                                                @if ($entity->data_type == "button")
+                                                <button type="button" class="btn btn-primary meta-button" name="{{$entity->name}}" value="{{$entity->options[0]}}">{{$entity->options[0]}}</button>
+                                                @endif
                                             </td>
+                                        </tr>
+
+                                        @elseif ($meta->entity->type == "output")
+                                        <tr>
+                                            <th scope="row">{{$entity->name}}</th>
+                                            <td id="meta-{{$entity->name}}">{{$meta->value}}</td>
                                         </tr>
                                         @endif
                                         @endforeach
