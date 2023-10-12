@@ -33,6 +33,13 @@ class GroupDeviceController extends Controller
         ]);
 
         $device = Devices::where("serial_number", $request->serial_number)->firstOrFail();
+        if($device->group_id){
+            return response()->json([
+                "status" => "error",
+                "message" => "Device already assigned to a group",
+            ], 400);
+        }
+
         $device->group_id = $group->id;
         $device->assigned_at = Carbon::now();
         $device->assigned_by_id = auth()->user()->id;
@@ -77,12 +84,12 @@ class GroupDeviceController extends Controller
         $logs->where("device_id", $device->id);
 
 
-        if($request->limit){
-            $logs->limit($request->limit);
-        }
+        // if($request->limit){
+        //     $logs->limit($request->limit);
+        // }
         $logs->orderBy("created_at", "desc");
         if($request->page){
-            $logs = $logs->paginate($request->page);
+            $logs = $logs->paginate($request->limit,['*'], 'page', $request->page);
         }else{
             $logs = $logs->get();
         }

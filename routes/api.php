@@ -4,6 +4,7 @@ use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\GroupDeviceController;
 use App\Http\Controllers\API\GroupMemberController;
 use App\Http\Controllers\API\UserRegisterController;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::group(['middleware' => ['auth:api']], function(){
     Route::get('group/timezone', [GroupController::class, 'timezones']);
     Route::apiResource('group', GroupController::class);
     Route::apiResource('group.device', GroupDeviceController::class);
+    Route::get('group/{group}/device/{device}/logs', [GroupDeviceController::class, 'logs']);
     Route::apiResource('group.member', GroupMemberController::class);
 });
 
