@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DeviceTypeController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupDeviceController;
 use App\Http\Controllers\GroupMemberController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -67,7 +68,15 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 
 Route::middleware(["auth"])->group(function(){
     // Route::get("/admin", [AdminController::class, "index"])->name("admin.home");
-
+    Route::get("profile", [ProfileController::class, "index"])->name("profile.index");
+    Route::post("profile/profile", [ProfileController::class, "store_profile"])->name("profile.profile");
+    Route::get("profile/password", function(){
+        return redirect()->route("profile.index");
+    });
+    Route::get("profile/profile", function(){
+        return redirect()->route("profile.index");
+    });
+    Route::post("profile/password", [ProfileController::class, "store_password"])->name("profile.password");
     Route::resource('group', GroupController::class);
     Route::resource('group.member', GroupMemberController::class);
     Route::resource('group.device', GroupDeviceController::class);
