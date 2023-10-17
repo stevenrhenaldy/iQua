@@ -89,11 +89,10 @@ class GroupDeviceController extends Controller
         // }
         $logs->orderBy("created_at", "desc");
         if($request->page){
-            $logs = $logs->paginate($request->limit,['*'], 'page', $request->page);
+            $logs = $logs->paginate($request->limit, ['*'], 'page', $request->page);
         }else{
             $logs = $logs->get();
         }
-
 
         return response()->json([
             "status" => "success",
