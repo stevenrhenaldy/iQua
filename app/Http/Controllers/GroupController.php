@@ -72,7 +72,15 @@ class GroupController extends Controller
             abort(401);
         }
 
+        // $entities = [];
+
+
         $devices = $group->devices;
+
+        // foreach($devices as $device){
+        //     $entities = $device->type->entities;
+        // }
+        // dd($entities);
         return view("user.group.show", [
             "group" => $group,
             "devices" => $devices
