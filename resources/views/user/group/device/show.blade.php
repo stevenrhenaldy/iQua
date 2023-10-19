@@ -37,7 +37,7 @@
                                             <th scope="row">{{$entity->name}}</th>
                                             <td>
                                                 @if ($entity->data_type == "button")
-                                                <button type="button" class="btn btn-primary meta-button" name="{{$entity->name}}" value="{{$entity->options[0]}}">{{$entity->options[0]}}</button>
+                                                <button type="button" class="btn btn-primary meta-button" name="{{$entity->name}}" value="0">{{$entity->options[0]}}</button>
                                                 @endif
                                             </td>
                                         </tr>
@@ -45,7 +45,22 @@
                                         @elseif ($meta->entity->type == "output")
                                         <tr>
                                             <th scope="row">{{$entity->name}}</th>
-                                            <td id="meta-{{$entity->name}}">{{$meta->value}}</td>
+                                            @php
+                                            $entity = $meta->entity;
+                                            // dd($entity);
+                                            if(is_null($entity)){
+                                                $metaOption = $meta->value;
+                                            }
+                                            $options = $entity->options;
+                                            if(is_null($options)){
+                                                $metaOption = $meta->value;
+                                            }
+                                            if($options && $entity){
+                                                $options = $entity->options;
+                                                $metaOption =  $options[$meta->value];
+                                            }
+                                            @endphp
+                                            <td id="meta-{{$entity->name}}">{{$metaOption}}</td>
                                         </tr>
                                         @endif
                                         @endforeach
@@ -150,10 +165,6 @@
                 });
             });
 
-            // dt
-            // .rows()
-            // .invalidate()
-            // .draw();
             console.log("invalidate")
             socket.on("event", (msg) => {
                 let data = msg

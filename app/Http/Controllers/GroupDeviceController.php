@@ -61,12 +61,27 @@ class GroupDeviceController extends Controller
         if($device->group_id != $group->id){
             abort(404);
         }
+        $entities = $device->type->entities;
         if ($request->ajax()) {
+            // dd($device->type);
+
             $logs = DeviceEvent::query();
             $logs->where("device_id", $device->id);
-            // $data = User::select('*');
             return DataTables::of($logs)
                 ->addIndexColumn()
+                ->addColumn('value', function ($row) use ($entities){
+                    $entity = $entities->where("name", $row->event)->first();
+                    if(is_null($entity)){
+                        return $row->value;
+                    }
+                    $options = $entity->options;
+                    if(is_null($options)){
+                        return $row->value;
+                    }
+                    $options = $entity->options;
+                    // dd($row->value);
+                    return $options[$row->value];
+                })
                 ->addColumn('time', function ($row) use ($group) {
                     return $row->created_at->setTimezone($group->timezone)->format("d/m/Y H:i:s");
                 })
@@ -76,6 +91,7 @@ class GroupDeviceController extends Controller
         return view("user.group.device.show", [
             "group" => $group,
             "device" => $device,
+            "entities" => $entities,
         ]);
     }
 
