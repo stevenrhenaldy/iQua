@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('applets', function (Blueprint $table) {
             $table->id();
             $table->foreignId("user_id")->constrained("users");
+            $table->foreignId("group_id")->constrained("groups");
             $table->string("name");
             $table->string("status");
             $table->timestamps();

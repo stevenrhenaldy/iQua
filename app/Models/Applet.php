@@ -16,6 +16,7 @@ class Applet extends Model
      */
     protected $fillable = [
         'user_id',
+        'group_id',
         'name',
         'status'
     ];
