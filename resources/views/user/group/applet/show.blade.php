@@ -17,125 +17,89 @@
                             <div class="col-12 my-1">
                                 <div class="card bg-white">
                                     <div class="card-header">
-                                        Devices
+                                        Applet
                                     </div>
                                     <div class="card-body">
-                                        @foreach ($devices as $device)
-                                            <div class="col-12 my-1">
-                                                <div class="card bg-white">
-                                                    <div class="card-body">
-                                                        <h4>{{ $device->name }}</h4>
-                                                        {{-- <div class="row"> --}}
-                                                        {{-- <div class="col-6"> --}}
+                                        <h1><b>{{ $applet->name }}</b></h1>
+                                        @if ($applet->status)
+                                            <span class="badge bg-success">enabled</span>
+                                        @else
+                                            <span class="badge bg-secondary">disabled</span>
+                                        @endif
 
-                                                        @foreach ($device->meta as $meta)
-                                                            <div class="row">
-                                                                <div class="col-4">
-                                                                    {{ $meta->entity->name }}
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    @if ($meta->entity->type == 'output')
-                                                                    @php
-                                                                    $entity = $meta->entity;
-                                                                    // dd($entity);
-                                                                    if(is_null($entity)){
-                                                                        $metaOption = $meta->value;
-                                                                    }
-                                                                    $options = $entity->options;
-                                                                    if(is_null($options)){
-                                                                        $metaOption = $meta->value;
-                                                                    }
-                                                                    if($options && $entity){
-                                                                        $options = $entity->options;
-                                                                        $metaOption =  $options[$meta->value];
-                                                                    }
-                                                                    @endphp
-                                                                    <span id="meta-{{$device->serial_number}}-{{$meta->entity->name}}">{{ $metaOption }}</span>
-
-                                                                    @else
-                                                                        @if ($meta->entity->data_type == 'button')
-                                                                            <button type="button"
-                                                                                class="btn btn-primary meta-button btn-sm"
-                                                                                name="{{ $device->serial_number }}_{{ $meta->entity->name }}"
-                                                                                value="0">{{ $meta->entity->options[0] }}</button>
-
-                                                                        @elseif ($meta->entity->data_type == 'switch')
-
-                                                                        @endif
-                                                                    @endif
-                                                                </div>
-
-                                                            </div>
-                                                        @endforeach
-                                                        {{-- </div> --}}
+                                        <div class="my-2">
+                                            <h5>
+                                                <b>If</b>
+                                            </h5>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <label for="if_device">Device Name</label>
+                                                    <input type="text" class="form-control" value="" readonly>
 
 
-                                                        {{-- </div> --}}
-                                                        <div class="mt-2">
-                                                            <a href="{{ route('group.device.show', [$group->uuid, $device->serial_number]) }}"
-                                                                class="d-flex btn btn-primary">
-                                                                Check out more...
-                                                            </a>
-
-                                                        </div>
-                                                    </div>
                                                 </div>
+                                                <div class="col-3">
+                                                    <label for="if_meta">Meta</label>
+                                                    <input name="if_meta" class="form-control" id="if_meta" readonly>
+                                                </div>
+                                                <div class="col-2">
+                                                    <label for="if_condition">Condition</label>
+                                                    <input name="if_condition" class="form-control" id="if_condition"
+                                                    readonly>
+                                                </div>
+                                                <div class="col-3">
+                                                    <label for="if_value">Value</label>
+                                                    <input type="float" name="if_value" class="form-control"
+                                                        id="if_value_text" readonly>
+                                                </div>
+
                                             </div>
+                                        </div>
+                                        <div class="my-2">
+                                            <h5><b>Do</b></h5>
 
-                                    </div>
-                                    @endforeach
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <label for="do_device">Device Name</label>
+                                                    <select name="do_device" class="form-select" id="do_device">
+                                                        <option value="">Select Device</option>
 
-                                    <div class="mt-1 d-grid">
-                                        <a href="{{ route('group.device.create', $group->uuid) }}" class="btn btn-success">
-                                            {{ __('Add Device') }}
-                                        </a>
+                                                    </select>
+
+                                                </div>
+                                                <div class="col-3">
+                                                    <label for="do_meta">Meta</label>
+                                                    <select name="do_meta" class="form-select" id="do_meta" disabled>
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-5">
+                                                    <label for="do_value">Value</label>
+                                                    <input type="float" name="do_value" class="form-control"
+                                                        id="do_value_text" disabled>
+                                                    <select name="do_value" class="form-select" id="do_value_select"
+                                                        disabled hidden>
+
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
 
+
                         </div>
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-
-
-    <script type="module">
-        const group_uuid = "{{$group->uuid}}";
-        const socket = io("https://realtime-iqua.atrest.xyz/");
-        socket.on('connect', function (msg) {
-            socket.emit("set_room_id", group_uuid);
-            console.log(`set_room_id = ${group_uuid}`)
-        });
-
-        socket.on('meta', (msg) => {
-            // if(msg.device != device_uuid) return;
-            let ptr = `#meta-${msg.device}-${msg.meta}`;
-            console.log(msg, ptr);
-
-            $(ptr).html(msg.value);
-        });
-
-        $('.meta-button').click(function() {
-            let serial_meta = $(this).attr("name");
-            let serial = serial_meta.split('_')[0];
-            let meta = serial_meta.split('_')[1];
-            let value = $(this).attr("value");
-            console.log(meta, value);
-            socket.emit("action", {
-                "type": "action",
-                "device": serial,
-                "group": group_uuid,
-                "event": meta,
-                "value": value
-            });
-        });
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+        integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous">
     </script>
 @endsection

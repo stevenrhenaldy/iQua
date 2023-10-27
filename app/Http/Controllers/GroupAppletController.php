@@ -43,7 +43,49 @@ class GroupAppletController extends Controller
      */
     public function store(Request $request, Group $group)
     {
-        //
+        $request->validate([
+            "name" => ["required", "string", "max:255"],
+            "status" => ["nullable", "in:0, 1"],
+            "if_device" => ["required", "string"],
+            "if_meta" => ["required", "exists:entities,id"],
+            "if_condition" => ["required", "in:==, !=, >, <, >=, <="],
+            "if_value" => ["required", "string"],
+            "do_device" => ["required", "string"],
+            "do_meta" => ["required", "exists:entities,id"],
+            "do_value" => ["required", "string"],
+        ]);
+        $if_device = $group->devices()->where([['serial_number', $request->if_device], ['group_id', $group->id]])->first();
+        if(!$if_device) return redirect()->back()->with('error', 'Device Invalid.');
+        $do_device = $group->devices()->where([['serial_number', $request->do_device], ['group_id', $group->id]])->first();
+        if(!$do_device) return redirect()->back()->with('error', 'Device Invalid.');
+
+        $applet = Applet::create([
+            "user_id" => $request->user()->id,
+            "group_id" => $group->id,
+            "name" => $request->name,
+            "status" => $request->status
+        ]);
+
+        $if_applet = $applet->nodes()->create([
+            "type" => "trigger",
+            "applet_id" => $applet->id,
+            "group_id" => $group->id,
+            "device_id" => $if_device->id,
+            "entity_id" => $request->if_meta,
+            "condition" => $request->if_condition,
+            "value" => $request->if_value,
+        ]);
+
+        $do_applet = $applet->nodes()->create([
+            "type" => "trigger",
+            "applet_id" => $applet->id,
+            "group_id" => $group->id,
+            "device_id" => $do_device->id,
+            "entity_id" => $request->do_meta,
+            "value" => $request->if_value,
+        ]);
+
+        return redirect()->route('group.applet.show', [$group->uuid, $applet->id])->with('success', 'Applet has been created.');
     }
 
     /**
@@ -51,7 +93,10 @@ class GroupAppletController extends Controller
      */
     public function show(Group $group, Applet $applet)
     {
-        //
+        if(!$group->applets()->where('id', $applet->id)->first()){
+            return redirect()->route('group.applet.index', $group->uuid)->with('error', 'Applet not found.');
+        }
+        return view('user.group.applet.show', compact('group', 'applet'));
     }
 
     /**

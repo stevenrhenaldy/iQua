@@ -7,7 +7,7 @@
                 <div class="card bg-white">
                     <div class="card-body">
                         <h2>Create new applet</h2>
-
+                        <x-alert></x-alert>
                         <form action="{{ route('group.applet.store', $group->uuid) }}" method="post">
                             @csrf
                             <div class="row">
@@ -16,9 +16,11 @@
                                     <input type="text" class="form-control" id="GroupName" name="name" value="">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="inputTitleEn" class="form-label">Description</label>
-                                    <input type="text" class="form-control" id="Description" name="description"
-                                        value="">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select name="status" class="form-select" id="status">
+                                        <option value="1">Active</option>
+                                        <option value="0">Disabled</option>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <h5><b>If Condition</b></h5>
@@ -58,7 +60,7 @@
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <h5><b>Do</b></h5>
+                                    <h5><b>Do Action</b></h5>
 
                                     <div class="row">
                                         <div class="col-4">
@@ -78,13 +80,8 @@
 
                                             </select>
                                         </div>
-                                        <div class="col-2">
-                                            <label for="do_condition">Condition</label>
-                                            <select name="do_condition" class="form-select" id="do_condition" disabled>
 
-                                            </select>
-                                        </div>
-                                        <div class="col-3">
+                                        <div class="col-5">
                                             <label for="do_value">Value</label>
                                             <input type="float" name="do_value" class="form-control" id="do_value_text" disabled>
                                             <select name="do_value" class="form-select" id="do_value_select" disabled hidden>
