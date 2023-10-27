@@ -1,4 +1,9 @@
 @extends('layouts.app')
+@push("styles")
+    <!-- CSS  -->
+     <link href="https://vjs.zencdn.net/7.2.3/video-js.css" rel="stylesheet">
+     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+@endpush
 
 @section('content')
     <div class="container">
@@ -13,6 +18,10 @@
                                 <a href="{{ route('group.edit', $group->uuid) }}"
                                     class="btn text-center btn-primary float-end">Settings</a>
                             </div>
+                            <video  controls id="livestream" class="video-js"                            >
+                                <source src="{{asset("assets/video/test.mp4")}}" >
+                              Your browser does not support the video tag.
+                              </video>
 
                             <div class="col-12 my-1">
                                 <div class="card bg-white">
@@ -105,8 +114,18 @@
     </div>
 
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    {{-- <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet"> --}}
+    {{-- <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script> --}}
+    {{-- <script src="https://unpkg.com/video.js/dist/video.js"></script>
+    <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script> --}}
+    <script src="https://vjs.zencdn.net/ie8/ie8-version/videojs-ie8.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.js"></script>
+    <script src="https://vjs.zencdn.net/7.2.3/video.js"></script>
 
-
+    <script>
+        var player = new videojs('livestream');
+        player.play();
+        </script>
     <script type="module">
         const group_uuid = "{{$group->uuid}}";
         const socket = io("https://realtime-iqua.atrest.xyz/");
