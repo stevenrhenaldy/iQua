@@ -66,8 +66,10 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request) {
 
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/verify', [App\Http\Controllers\HomeController::class, 'index'])->name('verification.notice');
 
-Route::middleware(["auth"])->group(function(){
+
+Route::middleware(["auth", "verified"])->group(function(){
     // Route::get("/admin", [AdminController::class, "index"])->name("admin.home");
     Route::get("profile", [ProfileController::class, "index"])->name("profile.index");
     Route::post("profile/profile", [ProfileController::class, "store_profile"])->name("profile.profile");
@@ -83,9 +85,9 @@ Route::middleware(["auth"])->group(function(){
     Route::resource('group.device', GroupDeviceController::class);
     // Route::get('group/{group}/applet', [GroupAppletController::class, "meta"])->name('group.applet.meta');
     Route::resource('group.applet', GroupAppletController::class);
-    Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 
 });
+Route::get('/invitation/{code}', [GroupController::class, "verify_invite"])->name('invitation.verify');
 
 Route::middleware(["auth"])->prefix("admin")->as("admin.")->group(function(){
     Route::get("/", [AdminController::class, "index"])->name("home");
