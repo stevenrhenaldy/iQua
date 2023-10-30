@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@push("styles")
+@push('styles')
     <!-- CSS  -->
-     <link href="https://vjs.zencdn.net/7.2.3/video-js.css" rel="stylesheet">
-     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <link href="https://vjs.zencdn.net/7.2.3/video-js.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 @endpush
 
 @section('content')
@@ -18,10 +18,10 @@
                                 <a href="{{ route('group.edit', $group->uuid) }}"
                                     class="btn text-center btn-primary float-end">Settings</a>
                             </div>
-                            <video  controls id="livestream" class="video-js"                            >
-                                <source src="{{asset("assets/video/test.mp4")}}" >
-                              Your browser does not support the video tag.
-                              </video>
+                            <video controls id="livestream" class="video-js">
+                                <source src="{{ asset('assets/video/test.mp4') }}">
+                                Your browser does not support the video tag.
+                            </video>
 
                             <div class="col-12 my-1">
                                 <div class="card bg-white">
@@ -45,32 +45,30 @@
                                                                 <div class="col-8">
 
                                                                     @if ($meta->entity->type == 'output')
-                                                                    @php
-                                                                    $entity = $meta->entity;
-                                                                    // dd($entity);
-                                                                    if(is_null($entity)){
-                                                                        $metaOption = $meta->value;
-                                                                    }
-                                                                    $options = $entity->options;
-                                                                    if(is_null($options)){
-                                                                        $metaOption = $meta->value;
-                                                                    }
-                                                                    if($options && $entity){
-                                                                        $options = $entity->options;
-                                                                        $metaOption =  $options[$meta->value];
-                                                                    }
-                                                                    @endphp
-                                                                    <span id="meta-{{$device->serial_number}}-{{$meta->entity->name}}">{{ $metaOption }}</span>
-
+                                                                        @php
+                                                                            $entity = $meta->entity;
+                                                                            // dd($entity);
+                                                                            if (is_null($entity)) {
+                                                                                $metaOption = $meta->value;
+                                                                            }
+                                                                            $options = $entity->options;
+                                                                            if (is_null($options)) {
+                                                                                $metaOption = $meta->value;
+                                                                            }
+                                                                            if ($options && $entity) {
+                                                                                $options = $entity->options;
+                                                                                $metaOption = $options[$meta->value];
+                                                                            }
+                                                                        @endphp
+                                                                        <span
+                                                                            id="meta-{{ $device->serial_number }}-{{ $meta->entity->name }}">{{ $metaOption }}</span>
                                                                     @else
                                                                         @if ($meta->entity->data_type == 'button')
                                                                             <button type="button"
                                                                                 class="btn btn-primary meta-button btn-sm"
                                                                                 name="{{ $device->serial_number }}_{{ $meta->entity->name }}"
                                                                                 value="0">{{ $meta->entity->options[0] }}</button>
-
                                                                         @elseif ($meta->entity->data_type == 'switch')
-
                                                                         @endif
                                                                     @endif
                                                                 </div>
@@ -91,9 +89,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                        @endforeach
                                     </div>
-                                    @endforeach
 
                                     <div class="mt-1 d-grid">
                                         <a href="{{ route('group.device.create', $group->uuid) }}" class="btn btn-success">
@@ -113,7 +110,9 @@
     </div>
     </div>
 
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+        integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous">
+    </script>
     {{-- <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet"> --}}
     {{-- <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script> --}}
     {{-- <script src="https://unpkg.com/video.js/dist/video.js"></script>
@@ -125,11 +124,11 @@
     <script>
         var player = new videojs('livestream');
         player.play();
-        </script>
+    </script>
     <script type="module">
-        const group_uuid = "{{$group->uuid}}";
+        const group_uuid = "{{ $group->uuid }}";
         const socket = io("https://realtime-iqua.atrest.xyz/");
-        socket.on('connect', function (msg) {
+        socket.on('connect', function(msg) {
             socket.emit("set_room_id", group_uuid);
             console.log(`set_room_id = ${group_uuid}`)
         });
