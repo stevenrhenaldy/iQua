@@ -47,7 +47,14 @@
                                                 </div>
                                                 <div class="col-3">
                                                     <label for="if_value">Value</label>
-                                                    <input type="float" class="form-control" value="{{$if_applet->value}}"
+                                                    @php
+                                                        $value = $if_applet->value;
+                                                        if(!is_null($if_applet->entity->options)){
+                                                            $options = $if_applet->entity->options;
+                                                            $value = $options[$if_applet->value];
+                                                        }
+                                                    @endphp
+                                                    <input type="float" class="form-control" value="{{$value}}"
                                                         id="if_value_text" readonly>
                                                 </div>
 
@@ -67,7 +74,14 @@
                                                 </div>
                                                 <div class="col-5">
                                                     <label for="do_value">Value</label>
-                                                    <input class="form-control" id="do_value_select" value="{{$do_applet->value}}" readonly>
+                                                    @php
+                                                        $value = $do_applet->value;
+                                                        if(!is_null($do_applet->entity->options)){
+                                                            $options = $do_applet->entity->options;
+                                                            $value = $options[$do_applet->value];
+                                                        }
+                                                    @endphp
+                                                    <input class="form-control" id="do_value_select" value="{{$value}}" readonly>
                                                 </div>
 
                                             </div>

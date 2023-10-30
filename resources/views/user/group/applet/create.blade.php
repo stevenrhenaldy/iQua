@@ -93,7 +93,7 @@
                                 </div>
 
                                 <div class="">
-                                    <a href="https://culture.oia.nsysu.edu.tw/manage/form"
+                                    <a href="{{route("group.applet.index", $group->uuid)}}"
                                         class="btn btn-secondary">Back</a>
                                     <button type="submit" class="btn btn-primary">Create</button>
                                 </div>
@@ -167,7 +167,7 @@
                 conditions = (["==", "!="]);
                 // console.log(meta.options);
                 meta.options.forEach((value, key) => {
-                    $("#if_value_select").append('<option value="' + value + '">' + value + '</option>');
+                    $("#if_value_select").append('<option value="' + key + '">' + value + '</option>');
                 });
                 $("#if_value_select").prop("hidden", false);
                 $("#if_value_text").prop("hidden", true);
@@ -244,7 +244,7 @@
                 conditions = (["==", "!="]);
                 // console.log(meta.options);
                 meta.options.forEach((value, key) => {
-                    $("#do_value_select").append('<option value="' + value + '">' + value + '</option>');
+                    $("#do_value_select").append('<option value="' + key + '">' + value + '</option>');
                 });
                 $("#do_value_select").prop("hidden", false);
                 $("#do_value_text").prop("hidden", true);

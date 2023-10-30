@@ -8,7 +8,8 @@
                     <div class="card-body">
                         <h2>Create new applet</h2>
                         <x-alert></x-alert>
-                        <form action="{{ route('group.applet.store', $group->uuid) }}" method="post">
+                        <form action="{{ route('group.applet.update', [$group->uuid, $applet->id]) }}" method="post">
+                            @method('PUT')
                             @csrf
                             <div class="row">
                                 <div class="mb-3">
@@ -69,15 +70,16 @@
                                                 <input type="float" name="if_value" class="form-control"
                                                     id="if_value_text" hidden>
                                                 <select name="if_value" class="form-select" id="if_value_select">
-                                                    @foreach ($options as $option)
+                                                    @foreach ($options as $key => $option)
                                                         <option
-                                                            value="{{ $option }} {{ $option == $if_applet->value ? 'selected' : '' }}">
-                                                            {{ $option }}</option>
+                                                            value="{{ $key }}"
+                                                            {{ $key == $if_applet->value ? 'selected' : '' }}
+                                                            >{{ $option }}</option>
                                                     @endforeach
                                                 </select>
                                             @else
                                                 <input type="float" name="if_value" class="form-control"
-                                                    id="if_value_text">
+                                                    id="if_value_text" value="{{$if_applet->value}}">
                                                 <select name="if_value" class="form-select" id="if_value_select" hidden>
 
                                                 </select>
@@ -123,16 +125,16 @@
                                                 <input type="float" name="do_value" class="form-control"
                                                     id="do_value_text" hidden>
                                                 <select name="do_value" class="form-select" id="do_value_select">
-                                                    @foreach ($options as $option)
+                                                    @foreach ($options as $key => $option)
                                                         <option
-                                                            value="{{$option}}"
-                                                            {{ $option == $do_applet->value ? 'selected' : '' }}
+                                                            value="{{$key}}"
+                                                            {{ $key == $do_applet->value ? 'selected' : '' }}
                                                             >{{ $option }}</option>
                                                     @endforeach
                                                 </select>
                                             @else
                                                 <input type="float" name="do_value" class="form-control"
-                                                    id="do_value_text">
+                                                    id="do_value_text" value="{{$do_applet->value}}">
                                                 <select name="do_value" class="form-select" id="do_value_select" hidden>
 
                                                 </select>
