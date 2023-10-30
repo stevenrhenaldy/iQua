@@ -155,7 +155,6 @@ mqtt_client.on("message", (topic, message) => {
 
                 // console.log(mqtt_data, device_id)
 
-
                 let sql = "SELECT * FROM entities WHERE name = ? AND device_type_id = ? LIMIT 1";
                 let values = [mqtt_data.event, device_type_id];
                 con.query(sql, values, function(err, entityResult) {
@@ -163,22 +162,67 @@ mqtt_client.on("message", (topic, message) => {
                     if(entityResult.length == 0) return;
                     console.log(entityResult);
 
+                    let entity_id = entityResult[0].id;
+                    let options = entityResult[0].options;
+                    let real_value = mqtt_data.value;
+                    if(options !== null) {
+                        options = JSON.parse(options);
+                        real_value = options[mqtt_data.value];
+                    }
+
+                    let appletsql = "SELECT * FROM applet_nodes WHERE device_id = ? AND type = ? AND entity_id = ?";
+                    let appletvalues = [device_id, "trigger", entity_id];
+                    con.query(appletsql, appletvalues, function(err, appletResult) {
+                        if(err) throw err;
+                        if(appletResult.length == 0) return;
+                        let applet_id = appletResult[0].id;
+                        let logic = false;
+                        appletResult.forEach(function(applet) {
+                            const applet_id = appletResult.id
+                            switch (applet.condition){
+                                case "==":
+                                    logic = mqtt_data.value == applet.value;
+                                    break;
+                                case "!=":
+                                    logic = mqtt_data.value != applet.value;
+                                    break;
+                                case ">":
+                                    logic = mqtt_data.value > applet.value;
+                                    break;
+                                case "<":
+                                    logic = mqtt_data.value < applet.value;
+                                    break;
+                                case ">=":
+                                    logic = mqtt_data.value >= applet.value;
+                                    break;
+                                case "<=":
+                                    logic = mqtt_data.value <= applet.value;
+                                    break;
+                            }
+                            if(logic){
+                                let appletsql = "SELECT * FROM applet_nodes WHERE id = ? AND type = ? LIMIT 1";
+                                let appletvalues = [applet_id, "action", entity_id];
+                                con.query(appletsql, appletvalues, function(err, appletActionResult) {
+                                    if(err) throw err;
+                                    if(appletActionResult.length == 0) return;
+                                    let appletAction = appletActionResult[0];
+
+                                    // LANJUT SINII
+                                });
+                            }
+                        });
+
+                    });
+
 
                     let data = {
                         device: deviceUuid,
                         initiator: "device",
                         type: mqtt_data.type,
                         event: mqtt_data.event,
-                        time: moment(UTCTime).tz(groupResult[0].timezone).format("DD/MM/YYYY HH:mm:ss")
+                        time: moment(UTCTime).tz(groupResult[0].timezone).format("DD/MM/YYYY HH:mm:ss"),
+                        value: real_value
                     };
-                    let options = entityResult[0].options;
-                    if(options !== null) {
-                        options = JSON.parse(options);
-                        data.value = options[mqtt_data.value];
-                    }else{
-                        data.value = mqtt_data.value;
-                    }
-                    // console.log(data)
 
                     if(mqtt_data.type == "presence") {
                         let d = {
