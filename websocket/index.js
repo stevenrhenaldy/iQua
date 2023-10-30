@@ -89,15 +89,15 @@ io.on('connection', (socket) => {
                     }else{
                         eventData.value = mqtt_data.value;
                     }
-    
+
                     io.to(groupUuid).emit('event', eventData);
-    
+
                     let sqlEvent = "INSERT INTO `device_events` (`initiator`, `device_id`, `group_id`, `type`, `event`, `value`, `created_at`) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    let valuesEvent = ["user", device_id, group_id, eventData.type, data.event, data.value, UTCTime];        
+                    let valuesEvent = ["user", device_id, group_id, eventData.type, data.event, data.value, UTCTime];
                     con.query(sqlEvent, valuesEvent, function(err, result) {
                         if (err) throw err;
                         console.log(result)
-            
+
                         mqtt_client.publish(`libralien/${msg.device}/action`, JSON.stringify(data));
                     });
 
@@ -124,104 +124,12 @@ mqtt_client.on("connect", () => {
 
 mqtt_client.on("message", (topic, message) => {
     console.log(topic, message.toString());
-    // if (topic == "$SYS/broker/clients/active") {
-    //     const UTCTime = new Date().toISOString();
-    //     console.log("connected client updated", UTCTime)
-    //     mqtt_client.publish("libralien/presence", "check");
-    //     const delay = 5000;
-    //     setTimeout(()=>{
-    //         let sql = "SELECT * FROM device_events WHERE type = ? AND event = ? AND value = ? AND created_at >= ?";
-    //         let values = ["presence", "online", 1, UTCTime];
-    //         // let values = [deviceUuid];
-
-    //         con.query(sql, values, function(err, result) {
-    //             if (err) throw err;
-    //             console.log("updated")
-    //             console.log(result);
-
-    //             let online_device_ids = result.map(({ device_id }) => device_id);
-
-    //             console.log(online_device_ids);
-    //             let sql = "SELECT * FROM devices WHERE id NOT IN (?)";
-    //             if(online_device_ids.length == 0) {
-    //                 sql = "SELECT * FROM devices"
-    //             };
-    //             let values = [online_device_ids];
-    //             // let values = [deviceUuid];
-
-    //             con.query(sql, values, function(err, result) {
-    //                 if (err) throw err;
-    //                 // console.log("updated")
-    //                 console.log(result);
-
-    //                 let offline_device_ids = result.map(({ id }) => id);
-    //                 let offline_device_serial_numbers = result.map(({ serial_number }) => serial_number);
-    //                 let offline_device_group_ids = result.map(({ group_id }) => group_id);
-
-    //                 // console.log(online_device_ids);
-    //                 if(offline_device_ids.length == 0) return;
-    //                 let sql = "UPDATE devices SET status = ? WHERE id IN (?)";
-    //                 let values = ["offline", offline_device_ids];
-    //                 // let values = [deviceUuid];
-
-    //                 con.query(sql, values, function(err, result) {
-    //                     if (err) throw err;
-    //                     console.log(result);
-    //                 });
-
-                    
-
-    //                 offline_device_serial_numbers.forEach((serial_number, index) => {
-    //                     const group_id = offline_device_group_ids[index];
-    //                     const device_id = offline_device_ids[index];
-
-    //                     let sqlMeta = "INSERT INTO `device_events` (`initiator`, `device_id`, `group_id`, `type`, `event`, `value`, `created_at`) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    //                     let valuesMeta = ["server", device_id, group_id, "presence", "online", 0, UTCTime];
-    //                     con.query(sqlMeta, valuesMeta, function(err, result) {
-    //                         if (err) throw err;
-    //                         console.log(result);
-
-    //                     });
-
-    //                     let sql = "SELECT * FROM groups WHERE id = ? LIMIT 1";
-    //                     let values = [group_id];
-    //                     con.query(sql, values, function(err, groupResult) {
-    //                         if (err) throw err;
-    //                         if(groupResult.length == 0) return;
-    //                         const groupUuid = groupResult[0].uuid;
-    //                         let meta = {
-    //                             device: serial_number,
-    //                             meta: "status",
-    //                             value: "offline"
-    //                         };
-    //                         io.to(groupUuid).emit('meta', meta);
-
-    //                         let data = {
-    //                             device: serial_number,
-    //                             initiator: "server",
-    //                             type: "presence",
-    //                             event: "online",
-    //                             value: 0,
-    //                             time: moment(UTCTime).tz(groupResult[0].timezone).format("DD/MM/YYYY HH:mm:ss")
-    //                         };
-    //                         io.to(groupUuid).emit('event', data);
-    
-    //                     });
-
-    //                 });
-                    
-
-    //             });
-    //         });
-
-    //     }, delay);
-    // }
 
     let pattern = /libralien\/[a-zA-Z0-9\-]+/;
     if (pattern.test(topic)) {
         let deviceUuid = topic.split("/")[1];
         if(deviceUuid == "presence") return;
-        
+
         let sql = "SELECT devices.* FROM devices WHERE serial_number = ? LIMIT 1;"
         // let sql = "SELECT devices.id AS device_id, devices.*, device_metas.*, entities.* FROM devices JOIN device_metas ON device_metas.devices_id = devices.id JOIN entities ON entities.id = device_metas.entity_id WHERE serial_number = ? LIMIT 1;";
         let values = [deviceUuid];
@@ -232,15 +140,13 @@ mqtt_client.on("message", (topic, message) => {
             const device_id = deviceResult[0].id;
             const device_type_id = deviceResult[0].device_type_id;
             const group_id = deviceResult[0].group_id;
-            // console.log();
 
-            
 
             let sql = "SELECT * FROM groups WHERE id = ? LIMIT 1";
             let values = [group_id];
             con.query(sql, values, function(err, groupResult) {
                 if (err) throw err;
-                
+
                 if(groupResult.length == 0) return;
                 const groupUuid = groupResult[0].uuid;
 
@@ -254,9 +160,9 @@ mqtt_client.on("message", (topic, message) => {
                 let values = [mqtt_data.event, device_type_id];
                 con.query(sql, values, function(err, entityResult) {
                     if (err) throw err;
-                    if(deviceResult.length == 0) return;
+                    if(entityResult.length == 0) return;
                     console.log(entityResult);
-                    
+
 
                     let data = {
                         device: deviceUuid,
@@ -273,7 +179,7 @@ mqtt_client.on("message", (topic, message) => {
                         data.value = mqtt_data.value;
                     }
                     // console.log(data)
-    
+
                     if(mqtt_data.type == "presence") {
                         let d = {
                             value: mqtt_data.value
@@ -289,16 +195,16 @@ mqtt_client.on("message", (topic, message) => {
                             if (err) throw err;
                             // console.log(result);
                         });
-                        
+
                         let meta = {
                             device: deviceUuid,
                             meta: "status",
                             value: d.value
                         };
-                        
+
                         io.to(groupUuid).emit('meta', meta);
                     }
-    
+
                     let sqlMeta = "SELECT * FROM device_metas JOIN entities ON device_metas.entity_id=entities.id WHERE device_metas.devices_id = ? AND entities.name = ? LIMIT 1";
                     let valuesMeta = [device_id, mqtt_data.event];
                     con.query(sqlMeta, valuesMeta, function(err, metaResult) {
@@ -321,38 +227,34 @@ mqtt_client.on("message", (topic, message) => {
 
                         let sqlUpdateMeta = "UPDATE device_metas SET value = ? WHERE id = ?";
                         let valuesUpdateMeta = [
-                            mqtt_data.value, 
+                            mqtt_data.value,
                             metaResult[0].id
                         ];
                         con.query(sqlUpdateMeta, valuesUpdateMeta, function(err, result) {
                             if (err) throw err;
-                            console.log(result);
+                            // console.log(result);
                         });
                         io.to(groupUuid).emit('meta', meta);
                     });
-    
+
                     let sql = "INSERT INTO `device_events` (`initiator`, `device_id`, `group_id`, `type`, `event`, `value`, `created_at`) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     let values = [data.initiator, device_id, group_id, data.type, data.event, mqtt_data.value, UTCTime];
                     con.query(sql, values, function(err, result) {
                         if (err) throw err;
                         // console.log(result);
-    
+
                         io.to(groupUuid).emit('event', data);
                         console.log(data)
                     });
                 });
 
-
-
             });
-        
-            // console.log("1 record inserted");   
         });
 
         // mqtt_client.publish("libralien/presence", "check");
         // check if the id is in database
-        
-        
+
+
     }
 });
 
