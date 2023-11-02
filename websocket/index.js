@@ -172,8 +172,8 @@ mqtt_client.on("message", (topic, message) => {
                         real_value = options[mqtt_data.value];
                     }
 
-                    let appletsql = "SELECT * FROM applet_nodes WHERE device_id = ? AND type = ? AND entity_id = ?";
-                    let appletvalues = [device_id, "trigger", entity_id];
+                    let appletsql = "SELECT * FROM applet_nodes INNER JOIN applets ON applet_nodes.applet_id = applets.id WHERE applet_nodes.device_id = ? AND applet_nodes.type = ? AND applet_nodes.entity_id = ? AND applets.status = ?";
+                    let appletvalues = [device_id, "trigger", entity_id, 1];
                     con.query(appletsql, appletvalues, function (err, appletResult) {
                         if (err) throw err;
                         if (appletResult.length == 0) return;
