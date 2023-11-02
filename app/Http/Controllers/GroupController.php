@@ -83,7 +83,8 @@ class GroupController extends Controller
         // dd($entities);
         return view("user.group.show", [
             "group" => $group,
-            "devices" => $devices
+            "devices" => $devices,
+            "hasVideo" => $group->id == 1 ? true : false,
         ]);
     }
 
