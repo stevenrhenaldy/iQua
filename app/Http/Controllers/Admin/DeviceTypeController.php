@@ -90,6 +90,10 @@ class DeviceTypeController extends Controller
         ]);
 
         foreach($validated['entity'] as $key => $entity){
+            $options = null;
+            if($entity["options"]){
+                $options = json_decode($entity["options"], true);
+            }
 
             $en = $deviceType->entities()->firstOrNew([
                 "name" => $entity["name"],
@@ -98,7 +102,7 @@ class DeviceTypeController extends Controller
                 "type" => $entity["type"],
                 "default_value" => $entity["default_value"],
                 "data_type" => $entity["data_type"],
-                "options" => $entity["options"],
+                "options" => $options,
             ]);
 
             $en->save();
