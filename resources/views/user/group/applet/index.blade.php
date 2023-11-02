@@ -10,6 +10,8 @@
                         <p>Applet helps you to automate your jobs!</p>
                         <div class="row">
                             <div class="col-md-12 my-1">
+                                <a href="{{route("group.show", $group->uuid)}}" class="btn text-center btn-secondary">Back</a>
+
                                 <a href="{{route("group.applet.create", $group->uuid)}}" class="btn text-center btn-primary float-end">Create new applet</a>
                             </div>
                             @foreach ($applets as $applet)

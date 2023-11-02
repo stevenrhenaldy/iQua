@@ -9,6 +9,8 @@
                         <h2>{{ $applet->name }}</h2>
                         <div class="row">
                             <div class="col-12 my-1">
+                                <a href="{{route("group.applet.index", $group->uuid)}}" class="btn text-center btn-secondary">Back</a>
+
                                 <a href="{{ route('group.applet.edit', [$group->uuid, $applet->id]) }}"
                                     class="btn text-center btn-primary float-end">Settings</a>
                             </div>

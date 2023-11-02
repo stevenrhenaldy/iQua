@@ -48,7 +48,7 @@ class GroupAppletController extends Controller
             "status" => ["nullable", "in:0, 1"],
             "if_device" => ["required", "string"],
             "if_meta" => ["required", "exists:entities,id"],
-            "if_condition" => ["required", "in:==, !=, >, <, >=, <="],
+            "if_condition" => ["required", "in:==,!=,>,<,>=,<="],
             "if_value" => ["required", "string"],
             "do_device" => ["required", "string"],
             "do_meta" => ["required", "exists:entities,id"],
@@ -135,7 +135,7 @@ class GroupAppletController extends Controller
             "status" => ["nullable", "in:0, 1"],
             "if_device" => ["required", "string"],
             "if_meta" => ["required", "exists:entities,id"],
-            "if_condition" => ["required", "in:==, !=, >, <, >=, <="],
+            "if_condition" => ["required", "in:==,!=,>,<,>=,<="],
             "if_value" => ["required", "string"],
             "do_device" => ["required", "string"],
             "do_meta" => ["required", "exists:entities,id"],
@@ -172,8 +172,11 @@ class GroupAppletController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group, Applet $applet)
+    public function destroy(Group $group, Applet $applet, Request $request)
     {
-        //
+        $user = $request->user();
+        if(!$group->users->contains($user)) abort(401);
+        $applet->nodes()->delete();
+        $applet->delete();
     }
 }
