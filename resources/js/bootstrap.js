@@ -1,6 +1,8 @@
 import 'bootstrap';
 import $ from 'jquery';
+import Chart from 'chart.js/auto';
 window.$ = $;
+window.Chart = Chart;
 
 // const socket = require("socket.io");
 
