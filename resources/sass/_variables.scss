@@ -3,5 +3,44 @@ $body-bg: #f8fafc;
 
 // Typography
 $font-family-sans-serif: 'Nunito', sans-serif;
-$font-size-base: 0.9rem;
+$font-family-base: 'Lora', serif;
+$font-size-base: 1rem;
 $line-height-base: 1.6;
+
+// $primary:
+$btn-border-radius:           1rem;
+$btn-padding-x:              1rem;
+
+$white:    #fff;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+$black:    #000;
+
+$primary:       #4a4ab3;
+$secondary:     $gray-600;
+$success:       #14A44D;
+$info:          #54B4D3;
+$warning:       #E4A11B;
+$danger:        #DC4C64;
+$light:         $gray-100;
+$dark:          $gray-900;
+
+
+
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
