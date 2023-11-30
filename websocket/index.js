@@ -20,6 +20,19 @@ var con = mysql.createConnection({
     database: "iqua"
 });
 
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: 'libralieniqua@gmail.com',
+        pass: 'nidjkmfnkdgbesqa'
+    }
+});
+
+
 con.connect(function (err) {
     if (err) throw err;
     console.log("Connected to the database!");
@@ -27,6 +40,157 @@ con.connect(function (err) {
 
 const mqtt = require("mqtt");
 const mqtt_client = mqtt.connect("mqtt://140.117.172.18:9183", { username: "libralien", password: "LibrAlien2023jiayou" });
+
+const schedule = require('node-schedule');
+const job = schedule.scheduleJob('* * * * *', () => { // run every hour at minute 1
+    let utcTimestamp = new Date().getTime();
+
+    let utc_time = new Date();
+    utc_time.setTime(utcTimestamp);
+
+    utc_time = new Date().toUTCString().split(' ')[4];
+
+    // utc_time = utc_time.getTime()
+    let UTCTime = new Date().toISOString();
+
+
+
+
+    console.log('Run The scheduler!', utc_time);
+
+
+    let appletsql = "SELECT * FROM applet_nodes INNER JOIN applets ON applet_nodes.applet_id = applets.id WHERE applet_nodes.device_id = ? AND applet_nodes.type = ? AND applet_nodes.entity_id = ? AND applets.status = ? AND STR_TO_DATE(applet_nodes.value, '%T') = ?";
+    let appletvalues = [-2, "trigger", 1, 1, utc_time];
+
+    con.query(appletsql, appletvalues, function (err, applet_result) {
+        if (err) throw err;
+        if (applet_result.length == 0) return;
+        applet_result = applet_result[0];
+        console.log(applet_result)
+        applet_id = applet_result.applet_id;
+
+            console.log("triggered2", applet_id);
+            let appletsql = "SELECT * FROM applet_nodes WHERE applet_id = ? AND type = ? LIMIT 1";
+            let appletvalues = [applet_id, "action"];
+            con.query(appletsql, appletvalues, function (err, appletActionResult) {
+                if (err) throw err;
+                if (appletActionResult.length == 0) return;
+                let appletAction = appletActionResult[0];
+                let appletActionDeviceID = appletAction.device_id;
+                let actionEntityId = appletAction.entity_id;
+                let actionEntityValue = appletAction.value;
+
+                console.log("applet", appletActionDeviceID);
+
+                let sql = "SELECT * FROM devices WHERE id = ? LIMIT 1;";
+                let values = [appletActionDeviceID];
+
+
+                con.query(sql, values, function (err, deviceResult) {
+                    if (err) throw err;
+                    if (deviceResult.length == 0) {
+                        const built_in = [
+                            {
+                                id: -1,
+                                serial_number: "email",
+                                name: "Email",
+                                entities: [
+                                    {
+                                        id: 1,
+                                        type: "input",
+                                        name: "email",
+                                        data_type: "email",
+                                        default_value: "{\"subject\" : \"\", \"body\" : \"\"}",
+                                        options: null
+                                    },
+
+                                ]
+                            }
+                        ];
+
+                        let device = built_in.find(function (device) {
+                            return device.id == appletActionDeviceID;
+                        });
+
+
+
+                        if (device == null) {
+                            console.log("device not found");
+                            return;
+                        }
+                        console.log(device);
+                        return;
+                    };
+                    const device_id = deviceResult[0].id;
+                    const device_uuid = deviceResult[0].serial_number;
+
+                    console.log("device", device_uuid);
+
+                    let sql = "SELECT * FROM entities WHERE id = ? LIMIT 1";
+                    let values = [actionEntityId];
+                    con.query(sql, values, function (err, entityResult) {
+                        const entity_name = entityResult[0].name;
+                        let options = entityResult[0].options;
+
+                        let readable_value = actionEntityValue;
+                        if (options !== null) {
+                            options = JSON.parse(options);
+                            readable_value = options[actionEntityValue];
+                        }
+
+
+                        let sql = "SELECT * FROM groups WHERE id = ? LIMIT 1";
+                        let values = [applet_result.group_id];
+                        con.query(sql, values, function (err, groupResult) {
+                            if (err) throw err;
+
+                            if (groupResult.length == 0) return;
+                            const group_id = groupResult[0].id;
+                            const groupUuid = groupResult[0].uuid;
+
+                            let eventData = {
+                                device: device_uuid,
+                                initiator: "applet",
+                                type: "event",
+                                event: entity_name,
+                                value: readable_value,
+                                time: moment(UTCTime).tz(groupResult[0].timezone).format("DD/MM/YYYY HH:mm:ss")
+                            };
+                            io.to(groupUuid).emit('event', eventData);
+                            console.log(eventData);
+
+
+                            let sqlEvent = "INSERT INTO `device_events` (`initiator`, `device_id`, `group_id`, `type`, `event`, `value`, `created_at`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            let valuesEvent = ["applet", appletActionDeviceID, group_id, eventData.type, eventData.event, eventData.value, UTCTime];
+                            con.query(sqlEvent, valuesEvent, function (err, result) {
+                                if (err) throw err;
+                                console.log(result)
+
+                                let data = {
+                                    "type": "action",
+                                    "event": entity_name,
+                                    "value": actionEntityValue
+                                }
+
+                                console.log(data)
+
+                                mqtt_client.publish(`libralien/${device_uuid}/action`, JSON.stringify(data));
+                            });
+
+                        });
+
+
+                    });
+
+
+
+                });
+
+            });
+        // }
+    });
+
+});
 
 let seq = 0;
 
@@ -224,7 +388,39 @@ mqtt_client.on("message", (topic, message) => {
 
                                     con.query(sql, values, function (err, deviceResult) {
                                         if (err) throw err;
-                                        if (deviceResult.length == 0) return;
+                                        if (deviceResult.length == 0) {
+                                            const built_in = [
+                                                {
+                                                    id: -1,
+                                                    serial_number: "email",
+                                                    name: "Email",
+                                                    entities: [
+                                                        {
+                                                            id: 1,
+                                                            type: "input",
+                                                            name: "email",
+                                                            data_type: "email",
+                                                            default_value: "{\"subject\" : \"\", \"body\" : \"\"}",
+                                                            options: null
+                                                        },
+
+                                                    ]
+                                                }
+                                            ];
+
+                                            let device = built_in.find(function (device) {
+                                                return device.id == appletActionDeviceID;
+                                            });
+
+
+
+                                            if (device == null) {
+                                                console.log("device not found");
+                                                return;
+                                            }
+                                            console.log(device);
+                                            return;
+                                        };
                                         const device_id = deviceResult[0].id;
                                         const device_uuid = deviceResult[0].serial_number;
 
