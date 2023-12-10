@@ -20,10 +20,10 @@
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm py-1">
+        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm py-2">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}" class="my-0 py-0" style="color: #395e7c">
-                    <img src="{{asset("assets/logo/logo.svg")}}" alt="logo" style="height:37px" class="img img-responsive my-0" >
+                    <img src="{{asset("assets/logo/logo.svg")}}" alt="logo" style="height:40px" class="img img-responsive my-0" >
                     <b>{{ config('app.name', 'Laravel') }}</b>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -42,7 +42,7 @@
                             </li>
                         @endauth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('home') }}">{{ __('About Us') }}</a>
+                            <a class="nav-link" href="{{ route('about') }}">{{ __('About Us') }}</a>
                         </li>
                     </ul>
 
@@ -52,14 +52,14 @@
                         @guest
 
                             @if (Route::has('login'))
-                                <li class="nav-item">
+                                <li class="nav-item ms-3">
                                     <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
                                 </li>
                             @endif
 
                             @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                <li class="nav-item ms-3">
+                                    <a class="btn btn-primary" href="{{ route('register') }}">{{ __('Register') }}</a>
                                 </li>
                             @endif
                         @else
