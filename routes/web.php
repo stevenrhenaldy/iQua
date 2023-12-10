@@ -36,6 +36,8 @@ Auth::routes();
 //     return view('auth.verify');
 // })->middleware('auth')->name('verification.notice');
 
+
+
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
 
@@ -67,7 +69,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request) {
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/verify', [App\Http\Controllers\HomeController::class, 'index'])->name('verification.notice');
-
+Route::get('/about', [App\Http\Controllers\HomeController::class, 'about'])->name('about');
 
 Route::middleware(["auth", "verified"])->group(function(){
     // Route::get("/admin", [AdminController::class, "index"])->name("admin.home");
@@ -80,6 +82,7 @@ Route::middleware(["auth", "verified"])->group(function(){
         return redirect()->route("profile.index");
     });
     Route::post("profile/password", [ProfileController::class, "store_password"])->name("profile.password");
+    Route::get('group/{group}/device/{device}/chart', [GroupDeviceController::class, "show_chart"])->name('group.device.chart');
     Route::resource('group', GroupController::class);
     Route::resource('group.member', GroupMemberController::class);
     Route::resource('group.device', GroupDeviceController::class);
