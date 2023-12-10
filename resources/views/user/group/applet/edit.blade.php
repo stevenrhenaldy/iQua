@@ -198,6 +198,7 @@
         });
 
         $("#if_device").change(function() {
+            const group_uuid = "{{ $group->uuid }}";
             let device_uuid = $(this).val();
             $("#if_meta").empty();
             $("#if_condition").empty();
@@ -256,7 +257,7 @@
                 conditions = (["==", "!="]);
                 // console.log(meta.options);
                 meta.options.forEach((value, key) => {
-                    $("#if_value_select").append('<option value="' + value + '">' + value + '</option>');
+                    $("#if_value_select").append('<option value="' + key + '">' + value + '</option>');
                 });
                 $("#if_value_select").prop("hidden", false);
                 $("#if_value_text").prop("hidden", true);
@@ -319,24 +320,31 @@
             $("#do_condition").empty();
             $("#do_value_select").empty();
             $("#do_value_text").val("");
+            $("#do_value_textarea").val("");
             $("#do_value_select").prop("disabled", true);
             $("#do_value_text").prop("disabled", true);
+            $("#do_value_textarea").prop("disabled", true);
             if (meta_id == "") return;
             const meta = metaDataDo.find(o => o.id == meta_id);
 
             let conditions = [];
+            console.log(metaDataDo)
             if (meta.data_type == "integer" || meta.data_type == "float") {
-                conditions = (["==", "!=", ">", "<", ">=", "<="]);
+                $("#do_value_select").prop("hidden", true);
+                $("#do_value_textarea").prop("hidden", true);
+                $("#do_value_text").prop("hidden", false);
+            } else if (meta.data_type == "email") {
                 $("#do_value_select").prop("hidden", true);
                 $("#do_value_text").prop("hidden", false);
+                $("#do_value_textarea").prop("hidden", false);
+                $("#do_value_textarea").prop("disabled", false);
             } else {
-                conditions = (["==", "!="]);
-                // console.log(meta.options);
                 meta.options.forEach((value, key) => {
-                    $("#do_value_select").append('<option value="' + value + '">' + value + '</option>');
+                    $("#do_value_select").append('<option value="' + key + '">' + value + '</option>');
                 });
                 $("#do_value_select").prop("hidden", false);
                 $("#do_value_text").prop("hidden", true);
+                $("#do_value_textarea").prop("hidden", true);
 
             }
             // console.log(conditions)
@@ -347,6 +355,7 @@
             $("#do_condition").prop("disabled", false);
             $("#do_value_select").prop("disabled", false);
             $("#do_value_text").prop("disabled", false);
+
         });
     </script>
 @endsection

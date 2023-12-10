@@ -31,6 +31,9 @@
                                             <select name="if_device" class="form-select" id="if_device">
                                                 <option value="">Select Device</option>
                                                 @foreach ($devices as $device)
+                                                    @if ($device->serial_number == "email")
+                                                        @continue
+                                                    @endif
                                                     <option value="{{ $device->serial_number }}">{{ $device->name }}
                                                     </option>
                                                 @endforeach
@@ -67,7 +70,12 @@
                                             <label for="do_device">Device Name</label>
                                             <select name="do_device" class="form-select" id="do_device">
                                                 <option value="">Select Device</option>
+                                                {{-- @foreach (App\Models\Applet::$built_in as $device)
+                                                    <option value="{{ $device['serial_number'] }}">{{ $device['name'] }}
+                                                    </option>
+                                                @endforeach --}}
                                                 @foreach ($devices as $device)
+
                                                     <option value="{{ $device->serial_number }}">{{ $device->name }}
                                                     </option>
                                                 @endforeach
@@ -84,6 +92,8 @@
                                         <div class="col-5">
                                             <label for="do_value">Value</label>
                                             <input type="float" name="do_value" class="form-control" id="do_value_text" disabled>
+                                            <textarea type="float" name="do_text" class="form-control mt-2" id="do_value_textarea" disabled hidden>
+                                            </textarea>
                                             <select name="do_value" class="form-select" id="do_value_select" disabled hidden>
 
                                             </select>
@@ -152,6 +162,7 @@
             const meta_id = $(this).val();
             $("#if_condition").empty();
             $("#if_value_select").empty();
+            $("#if_value_text").prop("type", "text");
             $("#if_value_text").val("");
             $("#if_value_select").prop("disabled", true);
             $("#if_value_text").prop("disabled", true);
@@ -163,6 +174,12 @@
                 conditions = (["==", "!=", ">", "<", ">=", "<="]);
                 $("#if_value_select").prop("hidden", true);
                 $("#if_value_text").prop("hidden", false);
+            } else if(meta.data_type == "time"){
+                conditions = (["=="]);
+                $("#if_value_select").prop("hidden", true);
+                $("#if_value_text").prop("type", "time");
+                $("#if_value_text").prop("disabled", false);
+
             } else {
                 conditions = (["==", "!="]);
                 // console.log(meta.options);
@@ -230,24 +247,31 @@
             $("#do_condition").empty();
             $("#do_value_select").empty();
             $("#do_value_text").val("");
+            $("#do_value_textarea").val("");
             $("#do_value_select").prop("disabled", true);
             $("#do_value_text").prop("disabled", true);
+            $("#do_value_textarea").prop("disabled", true);
             if (meta_id == "") return;
             const meta = metaDataDo.find(o => o.id == meta_id);
 
             let conditions = [];
+            console.log(metaDataDo)
             if (meta.data_type == "integer" || meta.data_type == "float") {
-                conditions = (["==", "!=", ">", "<", ">=", "<="]);
+                $("#do_value_select").prop("hidden", true);
+                $("#do_value_textarea").prop("hidden", true);
+                $("#do_value_text").prop("hidden", false);
+            } else if (meta.data_type == "email") {
                 $("#do_value_select").prop("hidden", true);
                 $("#do_value_text").prop("hidden", false);
+                $("#do_value_textarea").prop("hidden", false);
+                $("#do_value_textarea").prop("disabled", false);
             } else {
-                conditions = (["==", "!="]);
-                // console.log(meta.options);
                 meta.options.forEach((value, key) => {
                     $("#do_value_select").append('<option value="' + key + '">' + value + '</option>');
                 });
                 $("#do_value_select").prop("hidden", false);
                 $("#do_value_text").prop("hidden", true);
+                $("#do_value_textarea").prop("hidden", true);
 
             }
             // console.log(conditions)

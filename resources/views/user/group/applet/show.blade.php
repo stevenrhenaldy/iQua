@@ -35,7 +35,7 @@
                                             <div class="row">
                                                 <div class="col-4">
                                                     <label for="if_device">Device Name</label>
-                                                    <input type="text" class="form-control" value="{{$if_applet->device->name}}" readonly>
+                                                    <input type="text" class="form-control" value="{{$if_applet->device->name??App\Models\Devices::get_built_in()->where("id", $if_applet->device_id)->first()->name}}" readonly>
 
                                                 </div>
                                                 <div class="col-3">
@@ -50,6 +50,10 @@
                                                 <div class="col-3">
                                                     <label for="if_value">Value</label>
                                                     @php
+                                                        if($if_applet->device_id < 0)
+                                                            $if_applet->entity = App\Models\Devices::get_built_in()->where("id", $if_applet->device_id)->first()->type->entities->where("id", $if_applet->entity_id)->first();
+
+                                                        $value = $do_applet->value;
                                                         $value = $if_applet->value;
                                                         if(!is_null($if_applet->entity->options)){
                                                             $options = $if_applet->entity->options;
@@ -68,7 +72,7 @@
                                             <div class="row">
                                                 <div class="col-4">
                                                     <label for="do_device">Device Name</label>
-                                                    <input  class="form-control" id="do_device" value="{{$do_applet->device->name}}" readonly>
+                                                    <input  class="form-control" id="do_device" value="{{$do_applet->device->name??App\Models\Devices::get_built_in()->where("id", $do_applet->device_id)->first()->name}}" readonly>
                                                 </div>
                                                 <div class="col-3">
                                                     <label for="do_meta">Meta</label>
@@ -77,13 +81,25 @@
                                                 <div class="col-5">
                                                     <label for="do_value">Value</label>
                                                     @php
+                                                        if($do_applet->device_id < 0)
+                                                            $do_applet->entity = App\Models\Devices::get_built_in()->where("id", $do_applet->device_id)->first()->type->entities->where("id", $do_applet->entity_id)->first();
+
+                                                        // dump($do_applet);
                                                         $value = $do_applet->value;
-                                                        if(!is_null($do_applet->entity->options)){
+                                                        // dd($value);
+                                                        if(($data = json_decode($do_applet->value)) && isset($data->subject) && isset($data->body)){
+                                                            // dump($data);
+                                                            $value = $data->subject;
+                                                            $value_text = $data->body;
+                                                        }else if(!is_null($do_applet->entity->options)){
                                                             $options = $do_applet->entity->options;
                                                             $value = $options[$do_applet->value];
                                                         }
                                                     @endphp
                                                     <input class="form-control" id="do_value_select" value="{{$value}}" readonly>
+                                                    @if ($do_applet->entity->data_type == "email")
+                                                        <textarea class="form-control mt-2" id="do_value_text"  readonly>{{$value_text}}</textarea>
+                                                    @endif
                                                 </div>
 
                                             </div>
