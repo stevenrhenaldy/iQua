@@ -37,27 +37,75 @@ class Devices extends Model
         'assigned_by_id'
     ];
 
-    public function type(){
+
+
+    public static function get_built_in()
+    {
+        return collect([
+            (object)[
+                "id" => -1,
+                "serial_number" => "email",
+                "name" => "Email",
+                "type" => (object)[
+                    "entities" => collect([
+                        (object)[
+                            "id" => 1,
+                            "type" => "input",
+                            "name" => "email",
+                            "data_type" => "email",
+                            "default_value" => "{\"subject\" => \"\", \"body\" => \"\"}",
+                            "options" => null
+                        ]
+                    ])
+                ]
+            ],
+            (object)[
+                "id" => -2,
+                "serial_number" => "timer",
+                "name" => "Timer",
+                "type" => (object)[
+                    "entities" => collect([
+                        (object)[
+                            "id" => 1,
+                            "type" => "output",
+                            "name" => "timer",
+                            "data_type" => "time",
+                            "default_value" => null,
+                            "options" => null
+                        ]
+                    ])
+                ]
+            ]
+        ]);
+    }
+
+    public function type()
+    {
         return $this->belongsTo(DeviceType::class, 'device_type_id');
     }
 
-    public function meta(){
+    public function meta()
+    {
         return $this->hasMany(DeviceMeta::class);
     }
 
-    public function getNameAttribute(){
-        return $this->name?? $this->type?->name;
+    public function getNameAttribute()
+    {
+        return $this->name ?? $this->type?->name;
     }
 
-    public function group(){
+    public function group()
+    {
         return $this->belongsTo(Group::class);
     }
 
-    public function events(){
-        return $this->hasMany(DeviceEvent::class);
+    public function events()
+    {
+        return $this->hasMany(DeviceEvent::class, "device_id");
     }
 
-    public function assigned_by(){
+    public function assigned_by()
+    {
         return $this->belongsTo(User::class);
     }
 }

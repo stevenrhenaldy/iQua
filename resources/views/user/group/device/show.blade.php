@@ -79,12 +79,13 @@
                                 <h5 class="my-0"><b>{{ $device->name }}</b></h5>
                                 <small class="my-0 text-muted">{{ $device->serial_number }}</small>
                                 <p class="my-0">{{ __('Type: ') }}{{ $device->type->name }}</p>
-                                {{-- <p class="my-0">{{ __('Status: ') }}{{ $device->status }}</p> --}}
-                                {{-- <p class="my-0">{{__('Battery: ')}}{{ $device->status }}</p> --}}
                             </div>
                         </div>
                         <div class="card bg-white">
                             <div class="card-body">
+                                <div>
+                                    <canvas id="myChart"></canvas>
+                                  </div>
                                 <table class="table">
                                     <tbody>
                                         {{-- <tr>
@@ -102,8 +103,8 @@
                                                         <td>
                                                             <label class="custom-switch">
                                                                 {{-- <input type="text" value="0"> --}}
-                                                                <input type="checkbox" class="meta-switch" name="{{ $entity->name }}"
-                                                                value="{{ $meta->value }}">
+                                                                <input type="checkbox" class="meta-switch"
+                                                                    name="{{ $entity->name }}" value="{{ $meta->value }}">
                                                                 <span class="slider round"></span>
                                                             </label>
                                                         </td>
@@ -212,6 +213,44 @@
                     },
                 ]
             });
+
+
+
+
+            $.ajax({
+                dataType: "json",
+                url: "{{route('group.device.chart', [$group->uuid, $device->serial_number])}}",
+                data: {
+                    csrf : "{{csrf_token()}}",
+                    interval: "daily",
+                    entity: "lux"
+                },
+                success: function(data){
+                    console.log(data);
+                    const ctx = document.getElementById('myChart');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from(Array(24), (_, i) => i),
+                    datasets: [{
+                        label: 'Lux',
+                        data: data.data,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+                }
+            })
+
+
 
             const socket = io("https://realtime-iqua.atrest.xyz/");
             socket.on('connect', function(msg) {
