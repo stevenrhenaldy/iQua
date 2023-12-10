@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Applet;
+use App\Models\Devices;
 use App\Models\Group;
+use DateTime;
+use DateTimeZone;
 use Illuminate\Http\Request;
 
 class GroupAppletController extends Controller
@@ -24,9 +27,19 @@ class GroupAppletController extends Controller
     {
         if($request->ajax()){
             $request->validate([
-                "device" => ["required", "exists:devices,serial_number"],
+                "device" => ["required"],
             ]);
+
             $device = $group->devices()->where('serial_number', $request->device)->first();
+
+            if(!$device){
+                $device = Devices::get_built_in()->where('serial_number', $request->device)->first();
+            }
+
+            if(!$device) return response()->json([
+                "status" => "error",
+                "message" => "Device Invalid."
+            ]);
             $entitites = $device->type->entities;
             // dd($device->type->entities);
             return response()->json([
@@ -35,6 +48,8 @@ class GroupAppletController extends Controller
             ]);
         }
         $devices = $group->devices;
+        $devices = $devices->concat(collect(Devices::get_built_in()));
+        // dd($devices);
         return view('user.group.applet.create', compact('group', 'devices'));
     }
 
@@ -47,16 +62,23 @@ class GroupAppletController extends Controller
             "name" => ["required", "string", "max:255"],
             "status" => ["nullable", "in:0, 1"],
             "if_device" => ["required", "string"],
-            "if_meta" => ["required", "exists:entities,id"],
+            "if_meta" => ["required"],
             "if_condition" => ["required", "in:==,!=,>,<,>=,<="],
             "if_value" => ["required", "string"],
             "do_device" => ["required", "string"],
-            "do_meta" => ["required", "exists:entities,id"],
+            "do_meta" => ["required"],
             "do_value" => ["required", "string"],
+            "do_text" => ["nullable", "string"],
         ]);
         $if_device = $group->devices()->where([['serial_number', $request->if_device], ['group_id', $group->id]])->first();
+        if(!$if_device){
+            $if_device = Devices::get_built_in()->where('serial_number', $request->if_device)->first();
+        }
         if(!$if_device) return redirect()->back()->with('error', 'Device Invalid.');
         $do_device = $group->devices()->where([['serial_number', $request->do_device], ['group_id', $group->id]])->first();
+        if(!$do_device){
+            $do_device = Devices::get_built_in()->where('serial_number', $request->do_device)->first();
+        }
         if(!$do_device) return redirect()->back()->with('error', 'Device Invalid.');
 
         $applet = Applet::create([
@@ -66,6 +88,13 @@ class GroupAppletController extends Controller
             "status" => $request->status
         ]);
 
+        $if_value = $request->if_value;
+        if($if_device->serial_number == "timer"){
+            $new_str = new DateTime($if_value, new DateTimeZone( $group->timezone ) );
+            $new_str->setTimeZone(new DateTimeZone('UTC'));
+            $if_value = $new_str->format("H:i:s");
+        }
+
         $if_applet = $applet->nodes()->create([
             "type" => "trigger",
             "applet_id" => $applet->id,
@@ -73,8 +102,16 @@ class GroupAppletController extends Controller
             "device_id" => $if_device->id,
             "entity_id" => $request->if_meta,
             "condition" => $request->if_condition,
-            "value" => $request->if_value,
+            "value" => $if_value,
         ]);
+
+        $do_value = $request->do_value;
+        if($do_device->serial_number == "email"){
+            $do_value = json_encode([
+                "subject" => $request->do_value,
+                "body" => $request->do_text
+            ]);
+        }
 
         $do_applet = $applet->nodes()->create([
             "type" => "action",
@@ -82,7 +119,7 @@ class GroupAppletController extends Controller
             "group_id" => $group->id,
             "device_id" => $do_device->id,
             "entity_id" => $request->do_meta,
-            "value" => $request->do_value,
+            "value" => $do_value,
         ]);
 
         return redirect()->route('group.applet.show', [$group->uuid, $applet->id])->with('success', 'Applet has been created.');
