@@ -74,14 +74,14 @@
             <div class="col-md-12">
                 <div class="card bg-white">
                     <div class="card-body">
-                        <h2>{{ $group->name }}</h2>
+                        <h2 class="text-primary"><b>{{ $group->name }}</b></h2>
                         <p>{{ $group->description }}</p>
                         <div class="row">
                             <div class="col-12 my-1">
                                 <a href="{{ route('group.edit', $group->uuid) }}"
                                     class="btn text-center btn-primary float-end ms-1">Settings</a>
                                 <a href="{{ route('group.applet.index', $group->uuid) }}"
-                                    class="btn text-center btn-success float-end ms-1">Applets</a>
+                                    class="btn text-center btn-secondary float-end ms-1">Applets</a>
                             </div>
                             @if ($hasVideo)
 
@@ -164,13 +164,13 @@
                                                 </div>
                                             </div>
                                         @endforeach
+                                        <div class="mt-2 d-grid">
+                                            <a href="{{ route('group.device.create', $group->uuid) }}" class="btn btn-success text-white">
+                                                {{ __('Add Device') }}
+                                            </a>
+                                        </div>
                                     </div>
 
-                                    <div class="mt-1 d-grid">
-                                        <a href="{{ route('group.device.create', $group->uuid) }}" class="btn btn-success">
-                                            {{ __('Add Device') }}
-                                        </a>
-                                    </div>
                                 </div>
                             </div>
 

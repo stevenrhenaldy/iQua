@@ -8,6 +8,7 @@ use App\Models\Group;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
 class GroupDeviceController extends Controller
@@ -95,6 +96,41 @@ class GroupDeviceController extends Controller
         ]);
     }
 
+    public function show_chart(Request $request, Group $group, Devices $device){
+        $interval = $request->interval;
+        $entity = $request->entity;
+        if($interval == "daily"){
+
+            $data= DB::select("SELECT *
+            FROM device_events
+            WHERE created_at IN (
+                SELECT MAX(created_at)
+                FROM device_events
+                WHERE DATE(created_at) = '2023-11-03'
+                AND device_id = ?
+                AND event = ?
+                GROUP BY HOUR(created_at)
+            )
+            AND device_id = ?
+            AND event = ?
+            ;", [$device->id, $entity, $device->id, $entity]);
+            $data = collect($data);
+
+            $item = collect();
+            for($i=0; $i<24; $i++){
+                $item->push(0);
+            }
+            foreach($data as $row){
+                $item[intval(Carbon::parse($row->created_at)->setTimezone($group->timezone)->format("H"))] = $row->value;
+            }
+
+
+            return response()->json([
+                "data" => $item,
+            ]);
+        }
+
+    }
     /**
      * Show the form for editing the specified resource.
      */

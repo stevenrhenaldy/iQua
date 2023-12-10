@@ -17,7 +17,7 @@
                                 <div class="col-12 my-1">
                                     <div class="card bg-white">
                                         <div class="card-body">
-                                            <h4>{{$group->name}}</h4>
+                                            <h4 class="text-primary"><b>{{$group->name}}</b></h4>
                                             <div class="row">
                                                 <div class="col-6">
                                                     Members: {{$group->users()->count()}}
